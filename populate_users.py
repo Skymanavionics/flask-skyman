@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 from app import create_app, db
 from app.models import User, Part
+from datetime import datetime
+
 
 def populate_from_csv():
     # Clear tables
@@ -28,7 +30,10 @@ def populate_from_csv():
                 email=row['email'],
                 password_hash=password,
                 is_admin=row['is_admin'].strip() == '1',
-                created_at=datetime.fromisoformat(row['created_at']) if row['created_at'] else datetime.now(timezone.utc),
+                created_at=(
+                    datetime.strptime(row['created_at'], "%m/%d/%Y").replace(tzinfo=timezone.utc)
+                    if row['created_at'] else datetime.now(timezone.utc)
+                ),
                 phone_number=row.get('phone_number'),
                 address_line1=row.get('address_line1'),
                 address_line2=row.get('address_line2'),
