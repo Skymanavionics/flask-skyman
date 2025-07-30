@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 from app import create_app, db
 from app.models import User, Part
-from datetime import datetime
 
 
 def populate_from_csv():
