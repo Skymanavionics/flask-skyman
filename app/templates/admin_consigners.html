@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Consigners</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f8f8;
+        }
+
+        .tab-bar {
+            background-color: #343231;
+            padding: 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .tab-links {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-bar a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 5px;
+        }
+
+        .tab-bar a.active {
+            background-color: #54b9d8;
+        }
+
+        .logout-button a {
+            background-color: #e6d926;
+            color: black;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+
+        .logout-button a:hover {
+            background-color: #d1c522;
+        }
+
+        /* Outer scroll container */
+        .main-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+            min-width: 100%;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            min-width: 280px;
+            max-width: 320px;
+            background-color: white;
+            padding: 0 20px 20px 20px;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 20px;
+            color: #333;
+            padding: 0 20px 20px 20px;
+        }
+
+        .consigner-row {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .consigner-row strong {
+            font-size: 15px;
+            color: #222;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            padding: 30px;
+            min-width: 600px; /* Prevent too narrow on small screens */
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .sidebar {
+                min-width: 320px;
+                padding: 0 20px 20px 20px;
+            }
+
+            .content-area {
+                min-width: 600px;
+            }
+        }
+
+        .new-consigner-btn {
+            background-color: #54b9d8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .new-consigner-btn:hover {
+            background-color: #379bbd;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            height: 50px;
+            margin-left: -12px;
+            margin-top: -15px;
+            margin-bottom: -15px;
+        }
+
+        #consignerPartsTableWrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #consignerPartsTable {
+            width: 100%;
+            min-width: 800px;  /* Prevent squishing on laptops */
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        #consignerPartsTable th,
+        #consignerPartsTable td {
+            padding: 12px 15px;
+            border-left: none;
+            border-right: none;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #consignerPartsTable thead th {
+            border-bottom: 2px solid #aaa;
+            background-color: #eaeaea;
+        }
+
+        #consignerPartsTable tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        #consignerPartsTable tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        #invoiceModal {
+          display: none;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1000;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #invoiceModal.show {
+          display: flex;
+        }
+
+        .modal {
+          display: none;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1000;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .modal.show {
+          display: flex;
+        }
+
+        .ellipsis-cell {
+          max-width: 200px;          /* or whatever width fits your table */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          vertical-align: top;
+        }
+
+        .ellipsis-cellCon {
+          display: inline-block;
+          max-width: 400px;         /* Set desired max width */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          vertical-align: middle;
+        }
+
+        .sidebar-name {
+          display: inline-block;
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="tab-bar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="header-logo">
+        </div>
+        <div class="tab-links">
+            <a href="{{ url_for('admin.parts') }}">Parts</a>
+            <a href="{{ url_for('admin.consigners') }}" class="active">Consigners</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; color: white">
+            <span style="font-weight: normal;">Hi, {{ current_user.name }}</span>
+            <div class="logout-button">
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT: Active Consigners List -->
+        <div class="sidebar">
+            <div style="position: sticky; top: 0; background: white; z-index: 10; padding-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin-bottom: 12px;">
+                    <h2 style="margin: 0; padding: 5px 20px 3px 20px;">Active Consigners</h2>
+                    <button onclick="openNewConsignerModal()" class="new-consigner-btn">
+                        + New Consigner
+                    </button>
+                </div>
+
+                <!-- Filters (outside any loop) -->
+                <div style="padding: 0 15px 15px 15px;">
+                    <input type="text" id="nameFilter" placeholder="Search by Name"
+                           oninput="applyConsignerFilters()"
+                           style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;">
+
+                    <input type="text" id="codeFilter" placeholder="Search by Code"
+                           oninput="applyConsignerFilters()"
+                           style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;">
+
+                    <input type="date" id="dateFilter" placeholder="Select Date"
+                           onchange="applyConsignerFilters()"
+                           style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 0px;">
+
+                </div>
+            </div>
+
+            <!-- Consigner List (also outside the loop) -->
+            <div id="consignerList"></div>
+        </div>
+
+        <!-- RIGHT: Reserved for future content -->
+        <div class="content-area" id="consignerDetails" style="display: none;">
+            <div id="consignerHeader" style="margin-bottom: 20px;"></div>
+            <!-- Filters Section -->
+            <div id="consignerFilters" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+              <input type="text" id="filterPartNumber" placeholder="Part #" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+              <input type="text" id="filterSerialNumber" placeholder="Serial #" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+              <input type="text" id="filterDescription" placeholder="Description" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+
+              <select id="filterCondition" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                <option value="">Condition</option>
+                <option value="AR">AR</option>
+                <option value="SV">SV</option>
+                <option value="YT">YT</option>
+              </select>
+
+              <select id="filterCommission" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                <option value="">Commission %</option>
+                <option value="asc">Low to High</option>
+                <option value="desc">High to Low</option>
+              </select>
+
+              <select id="filterPrice" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                <option value="">Price</option>
+                <option value="asc">Low to High</option>
+                <option value="desc">High to Low</option>
+              </select>
+
+             <input type="date" id="filterDateAdded" onchange="applyConsignerPartFilters()" placeholder="Date Added" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+
+            </div>
+            <div id="consignerPartsTableWrapper">
+                <table id="consignerPartsTable" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th>Part Number</th>
+                            <th>Serial Number</th>
+                            <th>Description</th>
+                            <th>Condition</th>
+                            <th>Commission</th>
+                            <th>Price</th>
+                            <th id="shippingHeader" style="display: none;">Shipping</th>
+                            <th id="dateHeader">Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filled via JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="paginationControls" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- New Consigner Modal -->
+    <!-- Modal Overlay -->
+    <div id="newConsignerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+      <!-- Modal Content Box -->
+      <div style="background-color:white; padding:30px; border-radius:10px; width:400px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <h2 style="text-align:center; margin-bottom:25px;">New Consigner</h2>
+        <div id="consignerErrorBox" style="display: none; color: red; margin-bottom: 10px; font-size: 14px;"></div>
+
+        <input id="newName" type="text" placeholder="Name" style="width:100%; padding:10px; margin-bottom:15px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="newCode" type="text" placeholder="Code" style="width:100%; padding:10px; margin-bottom:15px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="newEmail" type="email" placeholder="Email" style="width:100%; padding:10px; margin-bottom:15px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="newPassword" type="password" placeholder="Password" style="width:100%; padding:10px; margin-bottom:15px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="newDate" type="date" placeholder="Created At" style="width:100%; padding:10px; margin-bottom:25px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+
+        <div style="display:flex; justify-content:space-between;">
+          <button onclick="closeNewConsignerModal()"
+                  style="flex:1; margin-right:10px; padding:10px; background-color:#ccc; border:none; border-radius:6px; cursor:pointer;"
+                  onmouseover="this.style.backgroundColor='#bbb'"
+                  onmouseout="this.style.backgroundColor='#ccc'">
+            Cancel
+          </button>
+
+          <button onclick="submitNewConsigner()"
+                  style="flex:1; padding:10px; background-color:#54b9d8; color:white; border:none; border-radius:6px; cursor:pointer;"
+                  onmouseover="this.style.backgroundColor='#379bbd'"
+                  onmouseout="this.style.backgroundColor='#54b9d8'">
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Part Modal -->
+    <div id="addPartModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+      <div style="background-color:white; padding:30px; border-radius:10px; width:450px; max-width:95%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <h2 style="text-align:center; margin-bottom:20px;">Add New Part</h2>
+        <div id="addPartErrorBox" style="display: none; color: red; margin-bottom: 10px; font-size: 14px;"></div>
+
+        <input id="partNumberInput" type="text" placeholder="Part Number" style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="serialNumberInput" type="text" placeholder="Serial Number" style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="descriptionInput" type="text" placeholder="Description" style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <!-- <input id="conditionInput" type="text" placeholder="Condition" style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;"> -->
+        <select id="conditionInput" style="width:105%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+            <option value="">Condition</option>
+            <option value="AR">AR</option>
+            <option value="SV">SV</option>
+            <option value="YT">YT</option>
+        </select>
+        <input id="priceInput" type="number" step="0.01" placeholder="Price" style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+        <input id="commissionInput" type="number" min="0" max="100" step="0.01" placeholder="Commission %"
+           style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;"
+           oninput="toggleCommissionInputs('percentage')">
+
+        <input id="fixedFeeInput" type="number" min="0" step="0.01" placeholder="Fixed Fee $"
+           style="width:100%; padding:10px; margin-bottom:12px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;"
+           oninput="toggleCommissionInputs('fixed')">
+
+        <textarea id="notesInput" placeholder="Notes" style="width:100%; padding:10px; margin-bottom:20px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;"></textarea>
+        <input id="dateAddedInput" type="date" placeholder="Date Added" style="width:100%; padding:10px; margin-bottom:20px; margin-left:-10px; border-radius:6px; border:1px solid #ccc;">
+
+        <div style="display:flex; justify-content:space-between;">
+          <button onclick="closeAddPartModal()"
+                  style="flex:1; margin-right:10px; padding:10px; background-color:#ccc; border:none; border-radius:6px; cursor:pointer;">
+            Cancel
+          </button>
+          <button onclick="submitNewPart()"
+                  style="flex:1; padding:10px; background-color:#54b9d8; color:white; border:none; border-radius:6px; cursor:pointer;">
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="invoiceModal" class="modal">
+      <div style="background-color:white; padding:30px; border-radius:10px; width:800px; max-width:95%; box-shadow:0 10px 25px rgba(0,0,0,0.2); max-height:80vh; overflow-y:auto;">
+        <h2 style="text-align:center; margin-bottom:20px;">Generate Invoice</h2>
+        <form id="invoiceForm">
+
+          <input type="text" name="invoice_number" placeholder="Invoice Number (for PDF)"
+               required style="width:100%; padding:10px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc;">
+
+          <div id="invoicePartsInputs" style="margin-bottom:20px;"></div>
+
+          <input type="text" name="payment_method" placeholder="Paid via (e.g., PayPal, Bank Transfer)" required
+               style="width:100%; padding:10px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc;">
+
+          <input type="number" step="0.01" name="shipping_fee" placeholder="Additional Shipping" required
+               style="width:100%; padding:10px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc;">
+
+          <input type="number" step="0.01" name="misc_fee" placeholder="Miscellaneous Fee" required
+               style="width:100%; padding:10px; margin-bottom:20px; border-radius:6px; border:1px solid #ccc;">
+
+          <input type="date" name="invoice_date" id="invoiceDateInput" required
+               style="width:100%; padding:10px; margin-bottom:20px; border-radius:6px; border:1px solid #ccc;">
+
+          <div style="display:flex; justify-content:space-between;">
+            <button type="button" onclick="closeInvoiceModal()"
+                    style="flex:1; margin-right:10px; padding:10px; background-color:#ccc; border:none; border-radius:6px; cursor:pointer;">
+              Cancel
+            </button>
+            <button type="submit"
+                    style="flex:1; padding:10px; background-color:#54b9d8; color:white; border:none; border-radius:6px; cursor:pointer;">
+              Generate
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="soldModal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+         background: white; padding: 20px; border-radius: 10px; box-shadow: 0 6px 12px rgba(0,0,0,0.2); z-index: 1001; width: 400px;">
+        <h3>Mark Part as Sold</h3>
+
+        <label for="soldDateInput">Date Sold:</label>
+        <input type="date" id="soldDateInput" style="width: 100%; padding: 6px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 6px;">
+
+        <label for="soldShippingInput">Shipping Price:</label>
+        <input type="number" id="soldShippingInput" placeholder="Enter shipping cost" style="width: 100%; padding: 6px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 6px;">
+
+        <label for="soldNoteBox">Notes:</label>
+        <textarea id="soldNoteBox" rows="4" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 6px;"></textarea>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="closeSoldModal()" style="padding: 6px 12px; margin-right: 10px;">Cancel</button>
+            <button onclick="submitSoldPart()" style="padding: 6px 12px; background-color: #54b9d8; color: white; border: none; border-radius: 6px;">OK</button>
+        </div>
+    </div>
+
+    <div id="soldModalBackdrop" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+         background: rgba(0,0,0,0.3); z-index: 1000;"></div>
+
+    <script>
+    let selectedSoldPartIds = [];
+    let isSoldMode = false;
+    let currentConsignerPage = 1;
+
+    function applyConsignerFilters() {
+        const name = document.getElementById('nameFilter').value;
+        const code = document.getElementById('codeFilter').value;
+        const date = document.getElementById('dateFilter').value;
+
+        let url = '/admin/api/consigners?';
+
+        if (name) url += `name=${encodeURIComponent(name)}&`;
+        if (code) url += `code=${encodeURIComponent(code)}&`;
+        if (date) url += `date=${encodeURIComponent(date)}&`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('consignerList');
+                list.innerHTML = '';
+
+                if (data.length === 0) {
+                    list.innerHTML = '<div style="padding: 15px;">No consigners found.</div>';
+                    return;
+                }
+
+                data.forEach(consigner => {
+                    const div = document.createElement('div');
+                    div.style.padding = '10px 15px';
+                    div.style.borderBottom = '1px solid #ddd';
+                    div.style.cursor = 'pointer';
+                    div.setAttribute('data-id', consigner.id);
+                    div.onclick = () => fetchConsignerParts(consigner.id);
+
+                    // Attach row click (unsold parts)
+                    div.onclick = () => fetchConsignerParts(consigner.id);
+
+                    div.innerHTML = `
+                      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                        <div style="flex: 1; min-width: 0;">
+                          <strong title="${consigner.name}">
+                            <span class="sidebar-name">${consigner.name}</span>
+                          </strong><br>
+                          Code: ${consigner.code}<br>
+                          Date: ${consigner.created_at}
+                        </div>
+                        <img src="/static/invoice.png"
+                             alt="View Sold Parts"
+                             class="view-sold-icon"
+                             style="width: 20px; height: 25px; cursor: pointer;"
+                             title="View Sold Parts">
+                      </div>
+                    `;
+                    list.appendChild(div);
+
+                    // Prevent row click when clicking the "View Sold" button
+                    const icon = div.querySelector('.view-sold-icon');
+                    icon.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent triggering the row's click event
+                        fetchSoldParts(consigner.id); // You'll define this function
+                    });
+                });
+
+            });
+    }
+
+
+    function openNewConsignerModal() {
+        cancelInvoiceSelection()
+        document.getElementById('newConsignerModal').style.display = 'flex';
+    }
+
+    function closeNewConsignerModal() {
+        document.getElementById('newConsignerModal').style.display = 'none';
+    }
+
+    function submitNewConsigner() {
+        const name = document.getElementById('newName').value.trim();
+        const code = document.getElementById('newCode').value.trim();
+        const email = document.getElementById('newEmail').value.trim();
+        const password = document.getElementById('newPassword').value.trim();
+        const date = document.getElementById('newDate').value;
+
+        // Clear any previous error
+        const errorBox = document.getElementById('consignerErrorBox');
+        if (errorBox) errorBox.textContent = '';
+
+        fetch('/admin/api/consigners/new', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, code, email, password_hash: password, created_at: date })
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .then(({ status, body }) => {
+            if (status === 201) {
+                closeNewConsignerModal();
+                applyConsignerFilters(); // Refresh the list
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = body.message || "Failed to add consigner.";
+                    errorBox.style.display = 'block';
+                }
+            }
+        })
+        .catch(err => {
+            if (errorBox) {
+                errorBox.textContent = "Something went wrong. Please try again.";
+                errorBox.style.display = 'block';
+            }
+        });
+    }
+
+    function fetchConsignerParts(consignerId, page = 1) {
+        isSoldMode = false;
+        currentConsignerId = consignerId;
+        currentConsignerPage = 1;  // Reset to first page when selecting new consigner
+        cancelInvoiceSelection();
+
+        fetch(`/admin/api/consigners/${consignerId}/parts?page=${page}&per_page=25`)
+            .then(res => res.json())
+            .then(data => {
+                const header = document.getElementById('consignerHeader');
+                const tableBody = document.querySelector('#consignerPartsTable tbody');
+                const contentArea = document.getElementById('consignerDetails');
+
+                const consigner = data.consigner;
+
+                // Populate Header
+                header.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                          <h2>
+                              <span data-editable="name" data-id="${consigner.id}" class="editable-consigner ellipsis-cellCon" title="${consigner.name}">
+                                ${consigner.name}
+                              </span>
+                          </h2>
+                          <button onclick="deleteConsigner(${consigner.id})"
+                              style="padding: 6px 10px; background-color: #e6d926; color: black; border: none; border-radius: 4px; cursor: pointer;"
+                              onmouseover="this.style.backgroundColor='#c9302c'"
+                              onmouseout="this.style.backgroundColor='#e6d926'">
+                            Delete Consigner
+                          </button>
+                      </div>
+                      <div style="display: flex; align-items: baseline;">
+                          <span style="margin-right: 5px;">Email:</span>
+                          <span data-editable="email" data-id="${consigner.id}"
+                                class="editable-consigner truncate-ellipsis"
+                                style="max-width: 220px;"
+                                title="${consigner.email}">
+                            ${consigner.email}
+                          </span>
+                       </div>
+                      <p>Code: <span data-editable="code" data-id="${consigner.id}" class="editable-consigner">${consigner.code}</span></p>
+                      <p>Joined: <span data-editable="created_at" data-id="${consigner.id}" class="editable-consigner">${consigner.created_at}</span></p>
+                    </div>
+
+                    <!-- Note/Serial Box Container -->
+                    <div id="noteBox" style="display: none; flex-grow: 1; margin: 20px 20px; max-width: 600px;">
+                      <div style="margin-bottom: 0px;">
+                        <strong>Serial Number:</strong> <span id="noteSerial"></span>
+                      </div>
+                      <label><strong>Note:</strong></label>
+                      <textarea id="noteTextArea"
+                                style="width: 100%; height: 80px; resize: none; overflow-y: auto; padding: 6px; border-radius: 4px; border: 1px solid #ccc;"
+                                placeholder="Double-click to edit..."
+                                readonly></textarea>
+                      <div id="soldContainer" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <button onclick="openAddPartModal(${consignerId})"
+                            style="padding: 8px 12px; background-color: #54b9d8; color: white; border: none; border-radius: 6px; margin-top: 20px; cursor: pointer;"
+                            onmouseover="this.style.backgroundColor='#379bbd'"
+                            onmouseout="this.style.backgroundColor='#54b9d8'">
+                        + Add Part
+                    </button>
+                  </div>
+                `;
+
+                enableConsignerInlineEditing();
+
+                // Store parts and render via filters
+                currentConsignerParts = data.parts;
+                document.querySelector('#dateHeader').innerText = 'Date Added';
+                clearPartFilters();
+                applyConsignerPartFilters();
+
+
+                contentArea.style.display = 'block';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyConsignerFilters();
+    });
+
+    ['filterPartNumber', 'filterSerialNumber', 'filterDescription', 'filterCondition',
+     'filterCommission', 'filterPrice', 'filterDateAdded'].forEach(id => {
+        document.getElementById(id).addEventListener('input', applyConsignerPartFilters);
+    });
+
+    let currentFilterPage = 1;
+    const partsPerPage = 25;
+    const PARTS_PER_PAGE = 25;
+
+    function applyConsignerPartFilters() {
+        currentConsignerPage = 1;
+
+        const partNumber = document.getElementById('filterPartNumber').value.toLowerCase();
+        const serialNumber = document.getElementById('filterSerialNumber').value.toLowerCase();
+        const description = document.getElementById('filterDescription').value.toLowerCase();
+        const condition = document.getElementById('filterCondition').value;
+        const commissionOrder = document.getElementById('filterCommission').value;
+        const priceOrder = document.getElementById('filterPrice').value;
+        const dateAddedFilter = document.getElementById('filterDateAdded').value.trim();
+
+        let filtered = currentConsignerParts.filter(part => {
+            const matchesFilters =
+                (!partNumber || part.part_number.toLowerCase().includes(partNumber)) &&
+                (!serialNumber || part.serial_number.toLowerCase().includes(serialNumber)) &&
+                (!description || part.description.toLowerCase().includes(description)) &&
+                (!condition || part.condition === condition) &&
+                (!dateAddedFilter || (
+                    isSoldMode
+                        ? part.date_sold === dateAddedFilter
+                        : part.date_added === dateAddedFilter
+                ))
+
+            const correctStatus = isSoldMode ? part.status === 'Sold' : part.status === 'Unsold';
+
+            return matchesFilters && correctStatus;
+        });
+
+        if (commissionOrder) {
+            filtered.sort((a, b) => {
+                const aVal = a.commission_percentage ?? 0;
+                const bVal = b.commission_percentage ?? 0;
+                return commissionOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+        }
+
+        if (priceOrder) {
+            filtered.sort((a, b) => {
+                const aVal = a.price ?? 0;
+                const bVal = b.price ?? 0;
+                return priceOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+        }
+
+        renderFilteredPage(filtered, currentConsignerPage);
+
+        // Pagination controls
+        const paginationContainer = document.getElementById('paginationControls');
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(filtered.length / PARTS_PER_PAGE);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = (i === currentConsignerPage) ? 'active-page-btn' : '';
+            btn.onclick = () => {
+                currentConsignerPage = i;
+                renderFilteredPage(filtered, currentConsignerPage);
+            };
+            paginationContainer.appendChild(btn);
+        }
+    }
+
+    function renderFilteredPage(filteredParts, page) {
+        const tableBody = document.querySelector('#consignerPartsTable tbody');
+        tableBody.innerHTML = '';
+
+        document.getElementById('shippingHeader').style.display = isSoldMode ? '' : 'none';
+
+        const start = (page - 1) * PARTS_PER_PAGE;
+        const pageParts = filteredParts.slice(start, start + PARTS_PER_PAGE);
+
+        pageParts.forEach(part => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="editable ellipsis-cell" data-id="${part.id}" data-field="part_number"}>${part.part_number}</td>
+                <td class="editable ellipsis-cell" data-id="${part.id}" data-field="serial_number"}>${part.serial_number}</td>
+                <td class="editable ellipsis-cell" data-id="${part.id}" data-field="description">${part.description}</td>
+                <td class="editable" data-id="${part.id}" data-field="condition"}>${part.condition}</td>
+                <td class="editable" data-id="${part.id}" data-field="${part.fixed_fee != null ? 'fixed_fee' : 'commission_percentage'}"}>
+                    ${
+                        part.fixed_fee != null
+                            ? `$${part.fixed_fee.toFixed(2)}`
+                            : (part.commission_percentage != null ? `${part.commission_percentage.toFixed(2)}%` : '—')
+                    }
+                </td>
+                <td class="editable ellipsis-cell" data-id="${part.id}" data-field="price">${part.price != null ? '$' + part.price.toFixed(2) : ''}</td>
+                ${isSoldMode ? `
+                    <td class="editable" data-id="${part.id}" data-field="shipping">
+                        ${part.shipping != null ? '$' + part.shipping.toFixed(2) : '—'}
+                    </td>
+                ` : ''}
+                <td>
+                    ${isSoldMode
+                        ? (part.date_sold ? part.date_sold : '—')
+                        : `<span class="editable" data-id="${part.id}" data-field="date_added">${part.date_added}</span>`}
+                </td>
+
+                <td>
+                    ${isSoldMode ? `
+                        <input type="checkbox"
+                           class="invoice-checkbox"
+                           data-id="${part.id}">
+                    ` : `
+                        <button onclick="deletePart(${part.id})"
+                                style="padding: 4px 8px; color: black; background-color: #e6d926; border: none; border-radius: 4px; cursor: pointer;"
+                                onmouseover="this.style.backgroundColor='#c9302c'"
+                                onmouseout="this.style.backgroundColor='#e6d926'">
+                            Delete
+                        </button>
+                    `}
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+
+            if (isSoldMode) {
+                const checkbox = row.querySelector('.invoice-checkbox');
+                if (checkbox) {
+                    checkbox.checked = selectedSoldPartIds.includes(part.id);  // ✅ restore checked state
+
+                    checkbox.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent row click
+                    });
+
+                    checkbox.addEventListener('change', (e) => {
+                        const partId = parseInt(checkbox.dataset.id);
+                        if (checkbox.checked) {
+                            if (!selectedSoldPartIds.includes(partId)) {
+                                selectedSoldPartIds.push(partId);
+                            }
+                        } else {
+                            selectedSoldPartIds = selectedSoldPartIds.filter(id => id !== partId);
+                        }
+                        updateInvoiceButtons();
+                    });
+                }
+            }
+
+            // Add click event for note + serial display
+            row.addEventListener('click', () => {
+                const noteBox = document.getElementById('noteBox');
+
+                // Toggle off if same row clicked again
+                if (noteBox.dataset.partId === String(part.id)) {
+                    noteBox.style.display = 'none';
+                    noteBox.dataset.partId = '';
+                    return;
+                }
+
+                noteBox.style.display = 'block';
+                noteBox.dataset.partId = part.id;
+                document.getElementById('noteSerial').innerText = part.serial_number;
+
+                const noteArea = document.getElementById('noteTextArea');
+                noteArea.value = part.notes || '';
+
+                if (isSoldMode) {
+                    noteArea.readOnly = true;
+                    noteArea.onblur = null; // Disable autosave
+                } else {
+                    noteArea.readOnly = false;
+
+                    // Auto-save on blur
+                    noteArea.onblur = () => {
+                        const newNote = noteArea.value;
+                        fetch(`/admin/api/parts/${part.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ field: 'notes', value: newNote })
+                        })
+                        .then(res => {
+                            if (!res.ok) {
+                                alert('Failed to save note.');
+                                return;
+                            }
+
+                            const updated = currentConsignerParts.find(p => p.id === part.id);
+                            if (updated) {
+                                updated.notes = newNote;
+                            }
+                        })
+                        .catch(() => {
+                            alert('Network error while saving note.');
+                        });
+                    };
+                }
+
+                const soldContainer = document.getElementById('soldContainer');
+                soldContainer.innerHTML = ''; // Clear previous content
+
+                if (!isSoldMode) {
+                    // Sold checkbox (Unsold → Sold)
+                    const soldLabel = document.createElement('label');
+                    soldLabel.textContent = 'Sold';
+                    soldLabel.style.marginRight = '8px';
+
+                    const soldCheckbox = document.createElement('input');
+                    soldCheckbox.type = 'checkbox';
+                    soldCheckbox.checked = part.status === 'Sold';
+
+                    soldCheckbox.addEventListener('change', () => {
+                        if (soldCheckbox.checked) {
+                            openSoldModal(part);  // Launch the modal for shipping, notes, and date
+                        } else {
+                            // Optional: handle unchecking logic if needed
+                        }
+                    });
+
+                    soldContainer.appendChild(soldLabel);
+                    soldContainer.appendChild(soldCheckbox);
+                } else {
+                    // Unsold checkbox (Sold → Unsold)
+                    const unsoldLabel = document.createElement('label');
+                    unsoldLabel.textContent = 'Unsold';
+                    unsoldLabel.style.marginRight = '8px';
+                    const unsoldCheckbox = document.createElement('input');
+                    unsoldCheckbox.type = 'checkbox';
+                    unsoldCheckbox.checked = false;
+
+                    unsoldCheckbox.addEventListener('change', () => {
+                        if (unsoldCheckbox.checked) {
+                            const confirmed = confirm("Convert status to Unsold?");
+                            if (confirmed) {
+                                fetch(`/admin/api/parts/${part.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        field: 'status',
+                                        value: 'Unsold',
+                                        shipping: null,
+                                        date_sold: null,
+                                        invoice_number: null
+                                    })
+                                })
+                                .then(res => {
+                                    if (res.ok) {
+                                        fetchSoldParts(currentConsignerId, 1);  // Refresh sold parts
+                                    } else {
+                                        alert("Failed to update status.");
+                                        unsoldCheckbox.checked = false;
+                                    }
+                                });
+                            } else {
+                                unsoldCheckbox.checked = false;
+                            }
+                        }
+                    });
+
+                    soldContainer.appendChild(unsoldLabel);
+                    soldContainer.appendChild(unsoldCheckbox);
+                }
+
+            });
+        });
+
+        enableInlineEditing();
+    }
+
+    function submitNewPart() {
+        const partNumber = document.getElementById('partNumberInput').value.trim();
+        const serialNumber = document.getElementById('serialNumberInput').value.trim();
+        const description = document.getElementById('descriptionInput').value.trim();
+        const condition = document.getElementById('conditionInput').value.trim();
+        const commission = document.getElementById('commissionInput').value.trim();
+        const fixedFee = document.getElementById('fixedFeeInput').value.trim();
+        const dateAdded = document.getElementById('dateAddedInput').value;
+        const price = parseFloat(document.getElementById('priceInput').value.trim()) || 0;
+        const notes = document.getElementById('notesInput').value.trim();
+
+        let commissionValue = null;
+        let fixedFeeValue = null;
+
+        const errorBox = document.getElementById('addPartErrorBox');
+        if (errorBox) errorBox.textContent = '';
+
+        // Validation (optional)
+        if (commission && fixedFee) {
+            errorBox.textContent = "Please enter either a commission percentage OR a fixed fee, not both.";
+            errorBox.style.display = 'block';
+            return;
+        }
+
+        if (commission) {
+            const parsed = parseFloat(commission);
+            if (parsed < 0 || parsed > 100 || isNaN(parsed)) {
+                errorBox.textContent = "Commission must be a number between 0 and 100.";
+                errorBox.style.display = 'block';
+                return;
+            }
+            commissionValue = parsed;
+        }
+
+        if (fixedFee) {
+            const parsed = parseFloat(fixedFee);
+            if (parsed < 0 || isNaN(parsed)) {
+                errorBox.textContent = "Fixed fee must be a positive number.";
+                errorBox.style.display = 'block';
+                return;
+            }
+            fixedFeeValue = parsed;
+        }
+
+        fetch('/admin/api/parts/new', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                part_number: partNumber,
+                serial_number: serialNumber,
+                description: description,
+                condition: condition,
+                commission_percentage: commission,
+                fixed_fee: fixedFeeValue,
+                price: parseFloat(document.getElementById('priceInput').value.trim()) || 0,
+                notes: document.getElementById('notesInput').value.trim(),
+                date_added: dateAdded,
+                consigner_id: currentConsignerId // Ensure this global is set when loading parts
+            })
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .then(({ status, body }) => {
+            if (status === 201) {
+                closeAddPartModal();
+                fetchConsignerParts(currentConsignerId); // Refresh the table
+            } else {
+                errorBox.textContent = body.message || "Failed to add part.";
+                errorBox.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            errorBox.textContent = "Something went wrong. Please try again.";
+            errorBox.style.display = 'block';
+        });
+    }
+
+    function toggleCommissionInputs(changed) {
+        const percentInput = document.getElementById('commissionInput');
+        const fixedInput = document.getElementById('fixedFeeInput');
+
+        if (changed === 'percentage' && percentInput.value.trim()) {
+            fixedInput.disabled = true;
+        } else if (changed === 'fixed' && fixedInput.value.trim()) {
+            percentInput.disabled = true;
+        }
+
+        if (!percentInput.value.trim() && !fixedInput.value.trim()) {
+            percentInput.disabled = false;
+            fixedInput.disabled = false;
+        }
+    }
+
+    function openAddPartModal() {
+        document.getElementById('addPartModal').style.display = 'flex';
+    }
+
+    function closeAddPartModal() {
+        document.getElementById('addPartModal').style.display = 'none';
+    }
+
+    function deletePart(partId) {
+        if (!confirm("Are you sure you want to delete this part?")) return;
+
+        fetch(`/admin/api/parts/${partId}`, {
+            method: 'DELETE'
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .then(({ status, body }) => {
+            if (status === 200) {
+                fetchConsignerParts(currentConsignerId); // Refresh parts list
+            } else {
+                alert(body.message || "Failed to delete part.");
+            }
+        })
+        .catch(() => alert("Something went wrong. Please try again."));
+    }
+
+    function updatePartField(partId, field, value, onSuccess) {
+        fetch(`/admin/api/parts/${partId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ field, value })
+        })
+        .then(res => {
+            if (res.ok) {
+                onSuccess();
+            } else {
+                alert("Update failed.");
+            }
+        })
+        .catch(() => {
+            alert("Network error. Try again.");
+        });
+    }
+
+    function enableInlineEditing() {
+        document.querySelectorAll('#consignerPartsTable td').forEach(cell => {
+            cell.ondblclick = function () {
+                const partId = this.dataset.id;
+                const field = this.dataset.field;
+
+                if (!partId || !field) return;
+
+                const originalValue = this.textContent.trim();
+
+                // Special case for condition dropdown
+                if (field === "condition") {
+                    const select = document.createElement('select');
+                    ["AR", "SV", "YT"].forEach(optionVal => {
+                        const option = document.createElement('option');
+                        option.value = option.text = optionVal;
+                        if (optionVal === originalValue) option.selected = true;
+                        select.appendChild(option);
+                    });
+
+                    this.textContent = '';
+                    this.appendChild(select);
+                    select.focus();
+
+                    // Save on change
+                    select.addEventListener('change', () => {
+                        const newValue = select.value;
+                        updatePartField(partId, field, newValue, () => {
+                            this.textContent = newValue;
+                        });
+                    });
+
+                    // Save on blur
+                    select.addEventListener('blur', () => {
+                        const newValue = select.value;
+                        updatePartField(partId, field, newValue, () => {
+                            this.textContent = newValue;
+                        });
+                    });
+
+                    // Optional: Pressing Enter triggers save
+                    select.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            select.blur(); // Triggers blur → save
+                        }
+                    });
+                } else {
+                    // Fallback for other fields (input box)
+                    const input = document.createElement('input');
+                    input.value = originalValue;
+                    input.style.width = "100%";
+                    this.textContent = '';
+                    this.appendChild(input);
+                    input.focus();
+
+                    input.onblur = () => {
+                        let newValue = input.value.trim();
+
+                        // Clean $ if editing price
+                        if (field === 'price' && newValue.startsWith('$')) {
+                            newValue = newValue.replace('$', '');
+                        }
+
+                        // Clean $ if editing shipping
+                        if (field === 'shipping' && newValue.startsWith('$')) {
+                            newValue = newValue.replace('$', '');
+                        }
+
+                        // Validation for commission_percentage
+                        if (field === 'commission_percentage') {
+                            newValue = newValue.replace('%', '').trim();  // remove % if present
+                            const val = parseFloat(newValue);
+                            if (isNaN(val) || val < 0 || val > 100) {
+                                alert("Commission % must be between 0 and 100.");
+                                this.textContent = originalValue;
+                                return;
+                            }
+                            newValue = val.toFixed(2);  // format it back to 2 decimal places
+                        }
+
+                        if (field === 'fixed_fee') {
+                            const val = parseFloat(newValue.replace('$', ''));
+                            if (isNaN(val) || val < 0) {
+                                alert("Fixed fee must be a positive number.");
+                                this.textContent = originalValue;
+                                return;
+                            }
+                            newValue = val.toFixed(2);
+                        }
+
+                        updatePartField(partId, field, newValue, () => {
+                            if (['price', 'shipping', 'fixed_fee'].includes(field)) {
+                                this.textContent = `$${parseFloat(newValue).toFixed(2)}`;
+                            } else if (field === 'commission_percentage') {
+                                this.textContent = `${parseFloat(newValue).toFixed(2)}%`;
+                            } else {
+                                this.textContent = newValue;
+                            }
+                        });
+                    };
+                }
+            };
+        });
+    }
+
+    function enableConsignerInlineEditing() {
+        document.querySelectorAll('.editable-consigner').forEach(element => {
+            element.ondblclick = function () {
+                const consignerId = this.dataset.id;
+                const field = this.dataset.editable;
+                const originalValue = this.textContent.trim();
+
+                const input = document.createElement('input');
+                input.value = originalValue;
+                input.style.width = "100%";
+                if (field === 'created_at') input.type = 'date';
+
+                this.textContent = '';
+                this.appendChild(input);
+                input.focus();
+
+                input.onblur = () => {
+                    let newValue = input.value.trim();
+
+                    if (field === 'created_at') {
+                        const date = new Date(newValue);
+                        if (isNaN(date.getTime())) {
+                            alert("Invalid date format.");
+                            this.textContent = originalValue;
+                            return;
+                        }
+                    }
+
+                    fetch(`/admin/api/consigners/${consignerId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ field, value: newValue })
+                    })
+                    .then(async res => {
+                        if (res.ok) {
+                            this.textContent = newValue;
+                        } else {
+                            const data = await res.json();
+                            alert(data.message || "Update failed.");
+                            this.textContent = originalValue;
+                        }
+                    })
+                    .catch(() => {
+                        this.textContent = originalValue;
+                        alert("Network error.");
+                    });
+                };
+            };
+        });
+    }
+
+
+    function deleteConsigner(consignerId) {
+        const confirmed = confirm("Are you sure you want to delete this consigner? All parts belonging to this consigner will also be removed.");
+        if (!confirmed) return;
+
+        fetch(`/admin/api/consigners/${consignerId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => {
+            if (res.ok) {
+                alert("Consigner deleted.");
+                document.getElementById('consignerDetails').style.display = 'none';
+                applyConsignerFilters(); // Refresh sidebar
+            } else {
+                alert("Failed to delete consigner.");
+            }
+        })
+        .catch(() => {
+            alert("Network error.");
+        });
+    }
+
+    function fetchSoldParts(consignerId, page = 1) {
+        isSoldMode = true;
+        currentConsignerId = consignerId;
+        currentConsignerPage = 1;
+        cancelInvoiceSelection();
+
+        fetch(`/admin/api/consigners/${consignerId}/parts?page=${page}&per_page=25&status=Sold`)
+            .then(res => res.json())
+            .then(data => {
+                const header = document.getElementById('consignerHeader');
+                const tableBody = document.querySelector('#consignerPartsTable tbody');
+                const contentArea = document.getElementById('consignerDetails');
+
+                const consigner = data.consigner;
+
+                // Populate header (non-editable, no buttons)
+                header.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                          <h2>
+                              <span data-editable="name" data-id="${consigner.id}" class="editable-consigner ellipsis-cellCon" title="${consigner.name} - Sold Parts">
+                                ${consigner.name}
+                              </span>
+                          </h2>
+                      </div>
+                      <p>Email: ${consigner.email}</p>
+                      <p>Code: ${consigner.code}</p>
+                      <p>Joined: ${consigner.created_at}</p>
+                    </div>
+
+                    <!-- Note/Serial Box Container -->
+                    <div id="noteBox" style="display: none; flex-grow: 1; margin: 20px 20px; max-width: 600px;">
+                      <div style="margin-bottom: 0px;">
+                        <strong>Serial Number:</strong> <span id="noteSerial"></span>
+                      </div>
+                      <label><strong>Note:</strong></label>
+                      <textarea id="noteTextArea"
+                                style="width: 100%; height: 80px; resize: none; overflow-y: auto; padding: 6px; border-radius: 4px; border: 1px solid #ccc;"
+                                readonly></textarea>
+                      <div id="soldContainer" style="margin-top: 10px;"></div>
+                    </div>
+                  </div>
+                `;
+
+                // Store only sold parts and render via existing filters
+                currentConsignerParts = data.parts;
+                document.querySelector('#dateHeader').innerText = 'Date Sold';
+                clearPartFilters();
+                applyConsignerPartFilters();
+
+                contentArea.style.display = 'block';
+            });
+    }
+
+    function clearPartFilters() {
+        document.getElementById('filterPartNumber').value = '';
+        document.getElementById('filterSerialNumber').value = '';
+        document.getElementById('filterDescription').value = '';
+        document.getElementById('filterCondition').value = '';
+        document.getElementById('filterCommission').value = '';
+        document.getElementById('filterPrice').value = '';
+        document.getElementById('filterDateAdded').value = '';
+    }
+
+    function updateInvoiceButtons() {
+        const headerRow = document.querySelector('#consignerHeader h2');
+        if (!headerRow) return; // Exit early if header not rendered yet
+
+        let btnContainer = document.getElementById('invoiceActionButtons');
+
+        if (!btnContainer) {
+            btnContainer = document.createElement('div');
+            btnContainer.id = 'invoiceActionButtons';
+            btnContainer.style.display = 'flex';
+            btnContainer.style.gap = '10px';
+            btnContainer.style.marginLeft = '20px';
+            headerRow.parentElement.appendChild(btnContainer);
+        }
+
+        if (selectedSoldPartIds.length > 0) {
+            btnContainer.innerHTML = `
+                <button
+                    onclick="createInvoice()"
+                    style="padding: 8px 12px; background-color: #54b9d8; color: white; border: none; border-radius: 6px; margin-top: 20px; cursor: pointer;"
+                    onmouseover="this.style.backgroundColor='#379bbd'"
+                    onmouseout="this.style.backgroundColor='#54b9d8'">
+                    Create Invoice
+                </button>
+                <button
+                    onclick="cancelInvoiceSelection()"
+                    style="padding: 8px 12px; background-color: #e6d926; color: black; border: none; border-radius: 6px; margin-top: 20px; cursor: pointer;"
+                    onmouseover="this.style.backgroundColor='#d1c522'"
+                    onmouseout="this.style.backgroundColor='#e6d926'">
+                    Cancel
+                </button>
+            `;
+        } else {
+            btnContainer.innerHTML = '';
+        }
+    }
+
+    function cancelInvoiceSelection() {
+        selectedSoldPartIds = [];
+
+        document.querySelectorAll('.invoice-checkbox').forEach(cb => {
+            cb.checked = false;
+        });
+
+        updateInvoiceButtons();
+    }
+
+    function createInvoice() {
+        const modal = document.getElementById('invoiceModal');
+        const form = document.getElementById('invoiceForm');
+        const inputsContainer = document.getElementById('invoicePartsInputs');
+
+        // Clear previous
+        inputsContainer.innerHTML = '';
+
+        // Build quantity inputs
+        selectedSoldPartIds.forEach(id => {
+            const part = currentConsignerParts.find(p => p.id === id);
+
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.flexDirection = 'column';
+            wrapper.style.marginBottom = '15px';
+
+            // Label above inputs
+            const label = document.createElement('label');
+            label.textContent = `Qty for ${part.description || 'Part'} (${part.serial_number || 'N/A'})`;
+            label.style.marginBottom = '5px';
+            label.style.fontWeight = 'bold';
+
+            const inputRow = document.createElement('div');
+            inputRow.style.display = 'flex';
+            inputRow.style.gap = '10px';
+
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'number';
+            qtyInput.min = '1';
+            qtyInput.value = '1';
+            qtyInput.name = `qty_${id}`;
+            qtyInput.required = true;
+            qtyInput.style.flex = '1';
+            qtyInput.style.padding = '8px';
+            qtyInput.style.borderRadius = '6px';
+            qtyInput.style.border = '1px solid #ccc';
+
+            const invInput = document.createElement('input');
+            invInput.type = 'text';
+            invInput.name = `inv_${id}`;
+            invInput.placeholder = 'Invoice # for this part';
+            invInput.required = true;
+            invInput.style.flex = '1';
+            invInput.style.padding = '8px';
+            invInput.style.borderRadius = '6px';
+            invInput.style.border = '1px solid #ccc';
+
+            inputRow.appendChild(qtyInput);
+            inputRow.appendChild(invInput);
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(inputRow);
+            inputsContainer.appendChild(wrapper);
+        });
+
+        // Pre-fill today's date in YYYY-MM-DD format
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+        document.getElementById('invoiceDateInput').value = formattedDate;
+
+        // Show modal
+        modal.classList.add('show');
+
+        // Handle form submission
+        form.onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            const quantities = {};
+            selectedSoldPartIds.forEach(id => {
+                quantities[id] = parseInt(formData.get(`qty_${id}`));
+            });
+
+            const invoice_numbers = {};
+            selectedSoldPartIds.forEach(id => {
+                const partInv = formData.get(`inv_${id}`);
+                if (partInv) invoice_numbers[id] = partInv;
+            });
+
+            const payload = {
+                part_ids: selectedSoldPartIds,
+                quantities,
+                invoice_numbers,
+                misc_fee: formData.get('misc_fee'),
+                invoice_number: formData.get('invoice_number'),
+                payment_method: formData.get('payment_method'),
+                shipping_fee: formData.get('shipping_fee'),
+                invoice_date: formData.get('invoice_date')
+            };
+
+            fetch('/admin/api/generate-invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to generate invoice.');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Invoice_${payload.invoice_number}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                closeInvoiceModal();
+                cancelInvoiceSelection();  // Reset UI
+            })
+            .catch(err => {
+                alert(err.message);
+            });
+        };
+    }
+
+    function closeInvoiceModal() {
+        const modal = document.getElementById('invoiceModal');
+        modal.classList.remove('show');
+    }
+
+    let currentSoldPart = null;
+
+    function openSoldModal(part) {
+        currentSoldPart = part;
+
+        // Prefill today's date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('soldDateInput').value = today;
+
+        // Prefill note
+        document.getElementById('soldNoteBox').value = part.notes || '';
+        document.getElementById('soldShippingInput').value = '';
+
+        document.getElementById('soldModal').style.display = 'block';
+        document.getElementById('soldModalBackdrop').style.display = 'block';
+    }
+
+    function closeSoldModal() {
+        currentSoldPart = null;
+        document.getElementById('soldModal').style.display = 'none';
+        document.getElementById('soldModalBackdrop').style.display = 'none';
+    }
+
+    function submitSoldPart() {
+        if (!currentSoldPart) return;
+
+        const dateInput = document.getElementById('soldDateInput').value;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+            alert("Invalid date format.");
+            return;
+        }
+
+        const shippingValue = parseFloat(document.getElementById('soldShippingInput').value);
+        const finalShipping = isNaN(shippingValue) ? 0 : shippingValue;
+
+        const updatedNote = document.getElementById('soldNoteBox').value.trim();
+
+        fetch(`/admin/api/parts/${currentSoldPart.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                field: 'status',
+                value: 'Sold',
+                date_sold: dateInput,
+                shipping: finalShipping,
+                notes: updatedNote
+            })
+        })
+        .then(res => {
+            if (res.ok) {
+                // ✅ Remove from currentConsignerParts
+                currentConsignerParts = currentConsignerParts.filter(p => p.id !== currentSoldPart.id);
+
+                // ✅ Clear note box if showing the just-sold part
+                const noteBox = document.getElementById('noteBox');
+                if (noteBox.dataset.partId === String(currentSoldPart.id)) {
+                    noteBox.style.display = 'none';
+                    noteBox.dataset.partId = '';
+                    document.getElementById('noteSerial').innerText = '';
+                    document.getElementById('noteTextArea').value = '';
+                    document.getElementById('soldContainer').innerHTML = '';
+                }
+
+                // ✅ Rerender table
+                applyConsignerPartFilters();
+
+                // ✅ Close modal
+                closeSoldModal();
+            } else {
+                alert("Failed to update part.");
+            }
+        });
+    }
+
+
+    </script>
+</body>
+</html>

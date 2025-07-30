@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Parts</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f8f8;
+        }
+
+        /* Simple horizontal tab bar styling */
+        .tab-bar {
+            background-color: #343231;
+            padding: 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .tab-links {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-bar a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 5px;
+        }
+
+        .tab-bar a.active {
+            background-color: #54b9d8;
+        }
+
+        .logout-button a {
+            background-color: #e6d926;
+            color: black;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+
+        .logout-button a:hover {
+            background-color: #d1c522;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            margin-top: 15px;
+        }
+
+        thead {
+            background-color: #eaeaea;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            background: white;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        thead th {
+            background: #f2f2f2;
+            font-weight: 600;
+        }
+
+        th {
+            white-space: nowrap;
+        }
+
+        .page-content {
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .parts-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1100px;
+            overflow-x: auto; /* Allow horizontal scroll only on small screens */
+        }
+
+        .filters input,
+        .filters select {
+            padding: 6px 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .filters input:focus,
+        .filters select:focus {
+            outline: none;
+            border-color: #53bde2;
+            box-shadow: 0 0 3px #53bde2;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .filters input,
+            .filters select {
+                font-size: 13px;
+                padding: 5px 8px;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .filters input,
+            .filters select {
+                width: 100%;
+            }
+
+            .parts-box {
+                overflow-x: scroll;
+            }
+
+            table {
+                min-width: 800px; /* Prevents columns from being squished too much */
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            height: 50px;
+            margin-left: -12px;
+            margin-top: -15px;
+            margin-bottom: -15px;
+        }
+
+        #notesBox {
+            position: fixed;
+            right: 30px;
+            top: 150px;
+            width: 300px;
+            background-color: white;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            z-index: 1000;
+            font-size: 14px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #notesBox.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-bar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="header-logo">
+        </div>
+        <div class="tab-links">
+            <a href="{{ url_for('admin.parts') }}" class="active">Parts</a>
+            <a href="{{ url_for('admin.consigners') }}">Consigners</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; color: white">
+            <span style="font-weight: normal;">Hi, {{ current_user.name }}</span>
+            <div class="logout-button">
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="parts-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">All Parts</h2>
+                <div class="filters" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="partNumberFilter" placeholder="Part Number" oninput="applyFilters()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" id="serialFilter" placeholder="Serial #" oninput="applyFilters()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+
+                    <input type="text" id="descriptionFilter" placeholder="Description" oninput="applyFilters()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+
+                    <select id="conditionFilter" onchange="applyFilters()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+                        <option value="">All Conditions</option>
+                        <option value="AR">AR</option>
+                        <option value="SV">SV</option>
+                        <option value="YT">YT</option>
+                    </select>
+
+                    <input type="date" id="dateFilter" onchange="applyFilters()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+
+                    <input type="text" id="codeFilter" placeholder="Code" oninput="applyFilters()" style="padding: 6px 10px; width: 60px; border-radius: 6px; border: 1px solid #ccc;">
+
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Part #</th>
+                        <th>Serial #</th>
+                        <th>Description</th>
+                        <th>Condition</th>
+                        <th>Date Added</th>
+                        <th>Consigner Code</th>
+                    </tr>
+                </thead>
+                <tbody id="partsTableBody">
+                    <!-- JavaScript will populate this -->
+                </tbody>
+            </table>
+
+            <div id="pagination" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;"></div>
+            <div id="notesBox"></div>
+        </div>
+    </div>
+    <script>
+    let currentPage = 1;
+    const pageSize = 30;
+    window.onload = function () {
+    function applyFilters(page = 1) {
+        currentPage = page;
+
+        const partNumber = document.getElementById('partNumberFilter').value;
+        const serial = document.getElementById('serialFilter').value;
+        const description = document.getElementById('descriptionFilter').value;
+        const condition = document.getElementById('conditionFilter').value;
+        const date = document.getElementById('dateFilter').value;
+        const code = document.getElementById('codeFilter').value;
+
+        let url = `/admin/api/parts?page=${page}&page_size=${pageSize}`;
+
+        if (partNumber) url += `&part_number=${encodeURIComponent(partNumber)}`;
+        if (serial) url += `&serial=${encodeURIComponent(serial)}`;
+        if (description) url += `&description=${encodeURIComponent(description)}`;
+        if (condition) url += `&condition=${condition}`;
+        if (date) url += `&date=${date}`;
+        if (code) url += `&code=${code}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('partsTableBody');
+                tbody.innerHTML = '';
+
+                data.parts.forEach(part => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-notes', part.notes || '');
+                    row.innerHTML = `
+                        <td>${part.part_number}</td>
+                        <td>${part.serial_number}</td>
+                        <td>${part.description}</td>
+                        <td>${part.condition}</td>
+                        <td>${part.date_added}</td>
+                        <td>${part.consigner_code}</td>
+                    `;
+
+                    row.addEventListener('mouseenter', () => {
+                        const notesBox = document.getElementById('notesBox');
+                        const notes = row.getAttribute('data-notes');
+                        if (notes && notes.trim() !== '') {
+                            notesBox.innerHTML = `<strong>Notes:</strong><br>${notes}`;
+                            notesBox.classList.add('show');
+                        }
+                    });
+
+                    row.addEventListener('mouseleave', () => {
+                        const notesBox = document.getElementById('notesBox');
+                        notesBox.classList.remove('show');
+                    });
+
+                    tbody.appendChild(row);
+                });
+
+                updatePaginationControls(data.total);
+            });
+    }
+
+    // Load data once when page loads
+    applyFilters();
+
+    // Make the function accessible globally
+    window.applyFilters = applyFilters;
+}
+    function updatePaginationControls(totalItems) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        if (currentPage > 1) {
+            const prev = document.createElement('button');
+            prev.textContent = 'Previous';
+            prev.onclick = () => applyFilters(currentPage - 1);
+            pagination.appendChild(prev);
+        }
+
+        const info = document.createElement('span');
+        info.textContent = `Page ${currentPage} of ${totalPages}`;
+        pagination.appendChild(info);
+
+        if (currentPage < totalPages) {
+            const next = document.createElement('button');
+            next.textContent = 'Next';
+            next.onclick = () => applyFilters(currentPage + 1);
+            pagination.appendChild(next);
+        }
+    }
+    </script>
+</body>
+</html>
+
+
+

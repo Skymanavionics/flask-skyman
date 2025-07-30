@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice {{ invoice_number }}</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        color: #333;
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .header img {
+        height: 150px;
+    }
+    h2 {
+        margin-bottom: 5px;
+    }
+    .section {
+        margin-top: 30px;
+    }
+    .section p {
+        margin: 4px 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+    }
+    th, td {
+        padding: 8px 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+    .totals {
+        margin-top: 20px;
+    }
+    .totals p {
+        margin: 4px 0;
+        font-weight: bold;
+    }
+    .left {
+        text-align: left;
+    }
+    .center {
+        text-align: center;
+    }
+    .right {
+        text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div style="text-align: right;">
+        <div style="flex: 1; text-align: left;">
+            <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo">
+        </div>
+        <h2>SKYMAN AVIONICS, LLC - CONSIGNMENT SALE</h2>
+        <p><strong>Date:</strong> {{ invoice_date.strftime('%m/%d/%Y') }}</p>
+        <p><strong>Invoice #: {{ invoice_number }}</strong></p>
+        {% if payment_method %}
+        <p><strong>Paid via: {{ payment_method }}</strong></p>
+        {% endif %}
+    </div>
+  </div>
+
+  <div class="section">
+        <h3>{{ consigner.name }}</h3>
+        <p>{{ consigner.email }}</p>
+        <p>{{ consigner.phone_number }}</p>
+        <p>{{ consigner.address_line1 }}</p>
+        {% if consigner.address_line2 %}
+        <p>{{ consigner.address_line2 }}</p>
+        {% endif %}
+        <p>{{ consigner.city }}, {{ consigner.state }} {{ consigner.zip_code }}</p>
+  </div>
+
+  <div class="section">
+      <h3>Billed To</h3>
+      <p>{{ billing.company }}</p>
+      <p>{{ billing.email }}</p>
+      <p>{{ billing.phone_number }}</p>
+      <p>{{ billing.address_line1 }}</p>
+      {% if billing.address_line2 %}
+      <p>{{ billing.address_line2 }}</p>
+      {% endif %}
+      <p>{{ billing.city }}, {{ billing.state }} {{ billing.zip_code }}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="left">Description</th>
+        <th class="center">Qty</th>
+        <th class="center">Price</th>
+        <th class="center">Consignment</th>
+        <th class="center">Total</th>
+        <th class="center">Part Invoice #</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="left">{{ item.description }}</td>
+          <td class="center">{{ item.qty }}</td>
+          <td class="center">${{ '%.2f' % (item.price - (item.shipping or 0)) }}</td>
+          <td class="center">
+            {% if item.commission is not none %}
+              {{ item.commission }}%
+            {% elif item.fixed_fee is not none %}
+              ${{ '%.2f' % item.fixed_fee }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="center">${{ '%.2f' % item.total }}</td>
+          <td class="center">{{ item.invoice_number }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="totals">
+          <td class="left"><strong>Additional Shipping</strong></td>
+          <td colspan="3"></td>
+          <td class="center">${{ '%.2f' % shipping }}</td>
+        </tr>
+        <tr class="totals">
+          <td class="left"><strong>Miscellaneous Fee</strong></td>
+          <td colspan="3"></td>
+          <td class="center">${{ '%.2f' % misc }}</td>
+        </tr>
+        <tr class="totals">
+          <td class="left"><strong>Grand Total</strong></td>
+          <td colspan="3"></td>
+          <td class="center">${{ '%.2f' % grand_total }}</td>
+        </tr>
+    </tbody>
+  </table>
+</body>
+</html>

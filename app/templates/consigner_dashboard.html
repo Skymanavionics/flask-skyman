@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Consigner Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f8f8;
+        }
+
+        .tab-bar {
+            background-color: #343231;
+            padding: 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .tab-links {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-bar a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 5px;
+        }
+
+        .tab-bar a.active {
+            background-color: #54b9d8;
+        }
+
+        .logout-button a {
+            background-color: #e6d926;
+            color: black;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+
+        .logout-button a:hover {
+            background-color: #d1c522;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            height: 50px;
+            margin-left: -12px;
+            margin-top: -15px;
+            margin-bottom: -15px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            margin-top: 15px;
+
+        }
+
+        thead {
+            background-color: #eaeaea;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            background: white;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        thead th {
+            background: #f2f2f2;
+            font-weight: 600;
+        }
+
+        th {
+            white-space: nowrap;
+        }
+
+        .page-content {
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .parts-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1600px;
+            overflow-x: auto; /* Allow horizontal scroll only on small screens */
+        }
+
+        .filters input,
+        .filters select {
+            padding: 6px 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .filters input:focus,
+        .filters select:focus {
+            outline: none;
+            border-color: #53bde2;
+            box-shadow: 0 0 3px #53bde2;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .filters input,
+            .filters select {
+                font-size: 13px;
+                padding: 5px 8px;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .filters input,
+            .filters select {
+                width: 100%;
+            }
+
+            .parts-box {
+                overflow-x: scroll;
+            }
+
+            table {
+                min-width: 800px; /* Prevents columns from being squished too much */
+            }
+        }
+
+        .truncate {
+            width: 140px;                /* fixed width */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;              /* block is required */
+            margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="tab-bar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="header-logo">
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; color: white">
+            <span style="font-weight: normal;">Hi, {{ current_user.name }}</span>
+            <div class="logout-button">
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="parts-box">
+            <div style="margin-bottom: 15px;">
+                <h2 style="text-align: center; margin-bottom: 20px;">Your Parts</h2>
+                <div class="filters" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
+                    <input type="text" id="filterPartNumber" placeholder="Part #" oninput="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                    <input type="text" id="filterSerialNumber" placeholder="Serial #" oninput="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                    <input type="text" id="filterDescription" placeholder="Description" oninput="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+
+                    <select id="filterCondition" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">All Conditions</option>
+                        <option value="AR">AR</option>
+                        <option value="SV">SV</option>
+                        <option value="YT">YT</option>
+                    </select>
+
+                    <select id="filterPrice" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">Price</option>
+                        <option value="low">Low → High</option>
+                        <option value="high">High → Low</option>
+                    </select>
+
+                    <select id="filterDateAdded" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">Date Added</option>
+                        <option value="1">Past Month</option>
+                        <option value="2">Past 2 Months</option>
+                        <option value="3">Past 3 Months</option>
+                        <option value="6">Past 6 Months</option>
+                        <option value="12">Past Year</option>
+                        <option value="13">Over a Year</option>
+                    </select>
+
+                    <select id="filterDateSold" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">Date Sold</option>
+                        <option value="1">Past Month</option>
+                        <option value="2">Past 2 Months</option>
+                        <option value="3">Past 3 Months</option>
+                        <option value="6">Past 6 Months</option>
+                        <option value="12">Past Year</option>
+                        <option value="13">Over a Year</option>
+                    </select>
+
+                    <select id="filterStatus" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">All Status</option>
+                        <option value="Sold">Sold</option>
+                        <option value="Unsold">Unsold</option>
+                    </select>
+
+                    <select id="filterEarnings" onchange="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                        <option value="">Earnings</option>
+                        <option value="low">Low → High</option>
+                        <option value="high">High → Low</option>
+                    </select>
+
+                    <input type="text" id="filterInvoice" placeholder="Invoice #" oninput="applyConsignerFilters()" style="flex: 1; min-width: 120px;">
+                </div>
+
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Part #</th>
+                        <th>Serial #</th>
+                        <th>Description</th>
+                        <th>Condition</th>
+                        <th>Price</th>
+                        <th>Date Added</th>
+                        <th>Date Sold</th>
+                        <th>Consignment Fee</th>
+                        <th>Status</th>
+                        <th>Earnings</th>
+                        <th>Invoice #</th>
+                    </tr>
+                </thead>
+                <tbody id="consignerPartsTable">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <div id="pagination" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;"></div>
+        </div>
+
+    </div>
+
+    <script>
+    let allParts = []; // full list
+    let filteredParts = []; // list after applying filters
+    const PARTS_PER_PAGE = 25;
+    let currentPage = 1;
+
+    // Fetch parts on page load
+    window.onload = function () {
+        fetch('/consigner/api/my-parts')
+            .then(res => res.json())
+            .then(data => {
+                allParts = data;
+                filteredParts = [...allParts];
+                renderTable(filteredParts);
+            });
+    };
+
+    // Render table rows
+    function renderTable(parts) {
+        const tbody = document.getElementById('consignerPartsTable');
+        tbody.innerHTML = '';
+
+        parts.forEach(part => {
+            const price = parseFloat(part.price) || 0;
+            const shipping = parseFloat(part.shipping) || 0;
+            let fee = 0;
+
+            if (part.commission_percentage !== null) {
+                fee = (price - shipping) * (part.commission_percentage / 100);
+            } else if (part.fixed_fee !== null) {
+                fee = part.fixed_fee;
+            }
+
+            const earnings = part.status === 'Sold' ? ((price - shipping - fee).toFixed(2)) : '';
+
+            const row = `
+                <tr>
+                    <td><div class="truncate" title="${part.part_number || ''}">${part.part_number || ''}</div></td>
+                    <td><div class="truncate" title="${part.serial_number || ''}">${part.serial_number || ''}</div></td>
+                    <td><div class="truncate" title="${part.description || ''}">${part.description || ''}</div></td>
+                    <td>${part.condition || ''}</td>
+                    <td>${price ? '$' + price.toFixed(2) : ''}</td>
+                    <td>${part.date_added || ''}</td>
+                    <td>${part.status === 'Sold' ? (part.date_sold || '') : ''}</td>
+                    <td>
+                        ${part.commission_percentage !== null
+                            ? part.commission_percentage + '%'
+                            : (part.fixed_fee !== null ? '$' + part.fixed_fee.toFixed(2) : '')}
+                    </td>
+                    <td>${part.status}</td>
+                    <td>${earnings ? '$' + earnings : ''}</td>
+                    <td><div class="truncate" title="${part.invoice_number || ''}">
+                        ${part.status === 'Sold' ? (part.invoice_number || '') : ''}
+                    </div></td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    function renderPagination(totalItems) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        const totalPages = Math.ceil(totalItems / PARTS_PER_PAGE);
+
+        if (totalPages <= 1) return;
+
+        // Previous button
+        if (currentPage > 1) {
+            const prev = document.createElement('button');
+            prev.textContent = 'Prev';
+            prev.onclick = () => {
+                currentPage--;
+                renderTable(filteredParts);
+            };
+            pagination.appendChild(prev);
+        }
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.style.fontWeight = i === currentPage ? 'bold' : 'normal';
+            btn.onclick = () => {
+                currentPage = i;
+                renderTable(filteredParts);
+            };
+            pagination.appendChild(btn);
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            const next = document.createElement('button');
+            next.textContent = 'Next';
+            next.onclick = () => {
+                currentPage++;
+                renderTable(filteredParts);
+            };
+            pagination.appendChild(next);
+        }
+    }
+
+
+    // Apply all filters
+    function applyConsignerFilters() {
+        const partNumber = document.getElementById('filterPartNumber').value.toLowerCase();
+        const serialNumber = document.getElementById('filterSerialNumber').value.toLowerCase();
+        const description = document.getElementById('filterDescription').value.toLowerCase();
+        const condition = document.getElementById('filterCondition').value;
+        const priceSort = document.getElementById('filterPrice').value;
+        const dateAddedRange = parseInt(document.getElementById('filterDateAdded').value);
+        const dateSoldRange = parseInt(document.getElementById('filterDateSold').value);
+        const status = document.getElementById('filterStatus').value;
+        const earningsSort = document.getElementById('filterEarnings').value;
+        const invoice = document.getElementById('filterInvoice').value.toLowerCase();
+
+        const now = new Date();
+
+        filteredParts = allParts.filter(part => {
+            const matchPartNumber = !partNumber || (part.part_number || '').toLowerCase().includes(partNumber);
+            const matchSerial = !serialNumber || (part.serial_number || '').toLowerCase().includes(serialNumber);
+            const matchDescription = !description || (part.description || '').toLowerCase().includes(description);
+            const matchCondition = !condition || part.condition === condition;
+            const matchStatus = !status || part.status === status;
+            const matchInvoice = !invoice || (part.invoice_number || '').toLowerCase().includes(invoice);
+
+            let matchDateAdded = true;
+            if (dateAddedRange) {
+                const added = new Date(part.date_added);
+                const cutoff = new Date();
+                cutoff.setMonth(now.getMonth() - (dateAddedRange === 13 ? 12 : dateAddedRange));
+                matchDateAdded = dateAddedRange === 13 ? (added < cutoff) : (added >= cutoff);
+            }
+
+            let matchDateSold = true;
+            if (dateSoldRange && part.date_sold) {
+                const sold = new Date(part.date_sold);
+                const cutoff = new Date();
+                cutoff.setMonth(now.getMonth() - (dateSoldRange === 13 ? 12 : dateSoldRange));
+                matchDateSold = dateSoldRange === 13 ? (sold < cutoff) : (sold >= cutoff);
+            } else if (dateSoldRange && !part.date_sold) {
+                matchDateSold = false;
+            }
+
+            return matchPartNumber &&
+                   matchSerial &&
+                   matchDescription &&
+                   matchCondition &&
+                   matchStatus &&
+                   matchInvoice &&
+                   matchDateAdded &&
+                   matchDateSold;
+        });
+
+        // Sort: Price
+        if (priceSort === 'low') {
+            filteredParts.sort((a, b) => (a.price || 0) - (b.price || 0));
+        } else if (priceSort === 'high') {
+            filteredParts.sort((a, b) => (b.price || 0) - (a.price || 0));
+        }
+
+        // Sort: Earnings
+        if (earningsSort) {
+            filteredParts.sort((a, b) => {
+                const aEarnings = calculateEarnings(a);
+                const bEarnings = calculateEarnings(b);
+                return earningsSort === 'low' ? aEarnings - bEarnings : bEarnings - aEarnings;
+            });
+        }
+
+        currentPage = 1;
+        renderTable(filteredParts);
+    }
+
+    function calculateEarnings(part) {
+        if (part.status !== 'Sold') return 0;
+        const price = parseFloat(part.price) || 0;
+        const shipping = parseFloat(part.shipping) || 0;
+        let fee = 0;
+
+        if (part.commission_percentage !== null) {
+            fee = (price - shipping) * (part.commission_percentage / 100);
+        } else if (part.fixed_fee !== null) {
+            fee = part.fixed_fee;
+        }
+
+        return price - shipping - fee;
+    }
+
+    function renderTable(parts) {
+        const tbody = document.getElementById('consignerPartsTable');
+        tbody.innerHTML = '';
+
+        const start = (currentPage - 1) * PARTS_PER_PAGE;
+        const end = start + PARTS_PER_PAGE;
+        const pageParts = parts.slice(start, end);
+
+        pageParts.forEach(part => {
+            const price = parseFloat(part.price) || 0;
+            const shipping = parseFloat(part.shipping) || 0;
+            let fee = 0;
+
+            if (part.commission_percentage !== null) {
+                fee = (price - shipping) * (part.commission_percentage / 100);
+            } else if (part.fixed_fee !== null) {
+                fee = part.fixed_fee;
+            }
+
+            const earnings = part.status === 'Sold' ? ((price - shipping - fee).toFixed(2)) : '';
+
+            const row = `
+                <tr>
+                    <td>${part.part_number || ''}</td>
+                    <td>${part.serial_number || ''}</td>
+                    <td>${part.description || ''}</td>
+                    <td>${part.condition || ''}</td>
+                    <td>${price ? '$' + price.toFixed(2) : ''}</td>
+                    <td>${part.date_added || ''}</td>
+                    <td>${part.status === 'Sold' ? (part.date_sold || '') : ''}</td>
+                    <td>
+                        ${part.commission_percentage !== null
+                            ? part.commission_percentage + '%'
+                            : (part.fixed_fee !== null ? '$' + part.fixed_fee.toFixed(2) : '')}
+                    </td>
+                    <td>${part.status}</td>
+                    <td>${earnings ? '$' + earnings : ''}</td>
+                    <td>${part.status === 'Sold' ? (part.invoice_number || '') : ''}</td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        renderPagination(parts.length);
+    }
+
+    </script>
+</body>
+</html>
