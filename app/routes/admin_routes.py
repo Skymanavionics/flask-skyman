@@ -97,7 +97,13 @@ def add_consigner():
         email=data['email'],
         password_hash=generate_password_hash(data['password_hash']),
         is_admin=False,
-        created_at=datetime.strptime(data['created_at'], '%Y-%m-%d')
+        created_at=datetime.strptime(data['created_at'], '%Y-%m-%d'),
+        phone_number=data.get('phone_number'),
+        address_line1=data.get('address_line1'),
+        address_line2=data.get('address_line2'),
+        city=data.get('city'),
+        state=data.get('state'),
+        zip_code=data.get('zip_code')
     )
     db.session.add(new_user)
     db.session.commit()
@@ -125,7 +131,13 @@ def get_consigner_parts(consigner_id):
             'name': consigner.name,
             'code': consigner.code,
             'email': consigner.email,
-            'created_at': consigner.created_at.strftime('%Y-%m-%d')
+            'created_at': consigner.created_at.strftime('%Y-%m-%d'),
+            'phone_number': consigner.phone_number,
+            'address_line1': consigner.address_line1,
+            'address_line2': consigner.address_line2,
+            'city': consigner.city,
+            'state': consigner.state,
+            'zip_code': consigner.zip_code
         },
         'parts': [
             {
@@ -182,6 +194,7 @@ def update_part_field(part_id):
         'price': float,
         'shipping': float,
         'date_added': str,  # assuming YYYY-MM-DD
+        'date_sold': str,
         'notes': str,
         'status': str
     }
@@ -203,6 +216,12 @@ def update_part_field(part_id):
                 return jsonify({"message": "Commission must be between 0 and 100."}), 400
 
         if field == 'date_added':
+            try:
+                casted_value = datetime.strptime(value, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({"message": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+        if field == 'date_sold':
             try:
                 casted_value = datetime.strptime(value, '%Y-%m-%d').date()
             except ValueError:
@@ -293,7 +312,13 @@ def update_consigner_field(consigner_id):
         'name': str,
         'email': str,
         'code': str,
-        'created_at': str
+        'created_at': str,
+        'phone_number': str,
+        'address_line1': str,
+        'address_line2': str,
+        'city': str,
+        'state': str,
+        'zip_code': str
     }
 
     if field not in allowed_fields:

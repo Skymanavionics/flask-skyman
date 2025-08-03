@@ -5,6 +5,9 @@ from app.models import db, User
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
+from dotenv import load_dotenv
+
+load_dotenv()
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'  # Redirect here if user not logged in
