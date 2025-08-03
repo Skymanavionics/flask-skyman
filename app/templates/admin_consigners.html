@@ -1743,12 +1743,17 @@
         document.getElementById('priceInput').value = '';
         document.getElementById('notesInput').value = '';
 
+        // ✅ Re-enable both inputs
+        document.getElementById('commissionInput').disabled = false;
+        document.getElementById('fixedFeeInput').disabled = false;
+
         const errorBox = document.getElementById('addPartErrorBox');
         if (errorBox) {
             errorBox.textContent = '';
             errorBox.style.display = 'none';
         }
     }
+
 
     function resetInvoiceModal() {
         // Clear static fields
