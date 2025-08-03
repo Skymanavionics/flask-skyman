@@ -10,6 +10,8 @@ import pdfkit
 from flask import send_file
 from jinja2 import Template
 from io import BytesIO
+from app.extensions import mail
+from flask_mail import Message
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -254,10 +256,53 @@ def update_part_field(part_id):
             if notes is not None:
                 part.notes = notes
 
+            if value == 'Sold':
+                # Existing date_sold, shipping, notes logic...
+
+                # Send email to Seth
+                user = User.query.get(part.user_id)
+                if user:
+                    msg = Message(
+                        subject=f"Part Sold — {user.code}",
+                        recipients=["Seth071503@gmail.com"]
+                    )
+                    msg.body = (
+                        f"A part has been marked as sold.\n\n"
+                        f"Consigner Code: {user.code}\n"
+                        f"Part Number: {part.part_number}\n"
+                        f"Serial Number: {part.serial_number}\n"
+                        f"Description: {part.description}\n"
+                        f"Condition: {part.condition}\n"
+                        f"Price: ${part.price:.2f}"
+                    )
+                    mail.send(msg)
+
+
         elif value == 'Unsold':
             part.date_sold = None
             part.shipping = None
             part.invoice_number = None
+
+        if value == 'Sold':
+            # Existing date_sold, shipping, notes logic...
+
+            # Send email
+            user = User.query.get(part.user_id)
+            if user:
+                msg = Message(
+                    subject=f"Part Sold — {user.code}",
+                    recipients=["Seth071503@gmail.com"]
+                )
+                msg.body = (
+                    f"A part has been marked as sold.\n\n"
+                    f"Consigner Code: {user.code}\n"
+                    f"Part Number: {part.part_number}\n"
+                    f"Serial Number: {part.serial_number}\n"
+                    f"Description: {part.description}\n"
+                    f"Condition: {part.condition}\n"
+                    f"Price: ${part.price:.2f}"
+                )
+                mail.send(msg)
 
     db.session.commit()
     return jsonify({"message": "Part updated successfully."}), 200
