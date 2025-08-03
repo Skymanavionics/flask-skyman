@@ -7,6 +7,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 MAIL_SERVER = 'smtp.mailgun.org'
 MAIL_PORT = 587
 MAIL_USE_TLS = True
-MAIL_USERNAME = 'postmaster@mg.skymanavionicsparts.com'
+MAIL_USERNAME = 'skymanavionics@mg.skymanavionicsparts.com'
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 MAIL_DEFAULT_SENDER = 'noreply@mg.skymanavionicsparts.com'
