@@ -232,6 +232,21 @@
           text-overflow: ellipsis;
         }
 
+        #paginationControls button {
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: none;
+            border-radius: 4px;
+            background-color: #54b9d8;
+            color: white;
+            cursor: pointer;
+        }
+
+        #paginationControls button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
     </style>
 </head>
 <body>
@@ -339,7 +354,7 @@
                     </tbody>
                 </table>
             </div>
-            <div id="paginationControls" style="margin-top: 15px;"></div>
+            <div id="paginationControls" style="text-align: center; margin-top: 16px;"></div>
         </div>
     </div>
 
@@ -802,16 +817,7 @@
         paginationContainer.innerHTML = '';
         const totalPages = Math.ceil(filtered.length / PARTS_PER_PAGE);
 
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            btn.className = (i === currentConsignerPage) ? 'active-page-btn' : '';
-            btn.onclick = () => {
-                currentConsignerPage = i;
-                renderFilteredPage(filtered, currentConsignerPage);
-            };
-            paginationContainer.appendChild(btn);
-        }
+        renderSimplePagination(filtered);
     }
 
     function renderFilteredPage(filteredParts, page) {
@@ -1757,6 +1763,44 @@
 
         // Optional: also reset form submission behavior
         document.getElementById('invoiceForm').onsubmit = null;
+    }
+
+    function renderSimplePagination(filteredParts) {
+        const totalPages = Math.ceil(filteredParts.length / PARTS_PER_PAGE);
+        const paginationContainer = document.getElementById('paginationControls');
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        const backBtn = document.createElement('button');
+        backBtn.innerText = 'Back';
+        backBtn.disabled = currentConsignerPage === 1;
+        backBtn.onclick = () => {
+            if (currentConsignerPage > 1) {
+                currentConsignerPage--;
+                renderFilteredPage(filteredParts, currentConsignerPage);
+                renderSimplePagination(filteredParts);
+            }
+        };
+
+        const nextBtn = document.createElement('button');
+        nextBtn.innerText = 'Next';
+        nextBtn.disabled = currentConsignerPage === totalPages;
+        nextBtn.onclick = () => {
+            if (currentConsignerPage < totalPages) {
+                currentConsignerPage++;
+                renderFilteredPage(filteredParts, currentConsignerPage);
+                renderSimplePagination(filteredParts);
+            }
+        };
+
+        const pageDisplay = document.createElement('span');
+        pageDisplay.style.margin = '0 10px';
+        pageDisplay.innerText = `Page ${currentConsignerPage} of ${totalPages}`;
+
+        paginationContainer.appendChild(backBtn);
+        paginationContainer.appendChild(pageDisplay);
+        paginationContainer.appendChild(nextBtn);
     }
 
     </script>

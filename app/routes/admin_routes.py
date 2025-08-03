@@ -264,11 +264,12 @@ def update_part_field(part_id):
                 if user:
                     msg = Message(
                         subject=f"Part Sold — {user.code}",
-                        recipients=["Seth071503@gmail.com"]
+                        recipients=["kelsey@skymanavionics.com"]
                     )
                     msg.body = (
-                        f"A part has been marked as sold.\n\n"
-                        f"Consigner Code: {user.code}\n"
+                        f"A part has been marked as sold!\n\n"
+                        f"Consigner: {user.name}\n"
+                        f"Code: {user.code}\n"
                         f"Part Number: {part.part_number}\n"
                         f"Serial Number: {part.serial_number}\n"
                         f"Description: {part.description}\n"

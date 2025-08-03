@@ -194,6 +194,21 @@
             opacity: 1;
             visibility: visible;
         }
+
+        #pagination button {
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: none;
+            border-radius: 4px;
+            background-color: #54b9d8;
+            color: white;
+            cursor: pointer;
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -339,7 +354,7 @@
 
         if (currentPage > 1) {
             const prev = document.createElement('button');
-            prev.textContent = 'Previous';
+            prev.textContent = 'Back';
             prev.onclick = () => applyFilters(currentPage - 1);
             pagination.appendChild(prev);
         }
