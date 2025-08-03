@@ -6,6 +6,9 @@ from sqlalchemy import func
 from app.models import db
 from app.utils.token import generate_reset_token, verify_reset_token
 from flask import current_app
+from app.extensions import mail
+from flask_mail import Message
+
 
 
 bp = Blueprint('auth', __name__)
@@ -40,35 +43,31 @@ def index():
 @bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        user = User.query.filter(func.lower(User.email) == email).first()
-
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
         if user:
-            token = generate_reset_token(email)
+            token = generate_reset_token(user.email)
             reset_url = url_for('auth.reset_password', token=token, _external=True)
-
-            # TODO: Send this via email in production
-            print(f"🔗 Reset URL: {reset_url}")
-            flash('A password reset link has been sent to your email.')
-        else:
-            flash('Email not found.')
-
+            msg = Message("Reset Your Password", recipients=[email])
+            msg.body = f"Click the link to reset your password: {reset_url}"
+            mail.send(msg)
+        flash('If an account with that email exists, a reset link has been sent.')
+        return redirect(url_for('auth.login'))
     return render_template('forgot_password.html')
+
 
 @bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     email = verify_reset_token(token)
     if not email:
-        flash('Invalid or expired reset link.')
-        return redirect(url_for('auth.login'))
+        flash('Invalid or expired token.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
 
     if request.method == 'POST':
-        new_password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.password_hash = generate_password_hash(new_password)
-            db.session.commit()
-            flash('Password has been updated. You may now log in.')
-            return redirect(url_for('auth.login'))
+        user = User.query.filter_by(email=email).first_or_404()
+        user.password_hash = generate_password_hash(request.form['password'])
+        db.session.commit()
+        flash('Password reset successful. You may now log in.', 'success')
+        return redirect(url_for('auth.login'))
 
-    return render_template('reset_password.html', token=token)
+    return render_template('reset_password.html')
