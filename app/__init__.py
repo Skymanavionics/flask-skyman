@@ -6,6 +6,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
 from dotenv import load_dotenv
+from app.extensions import mail
 
 load_dotenv()
 
@@ -17,6 +18,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('../config.py')
+    mail.init_app(app)
 
     # Initialize extensions
     db.init_app(app)

@@ -1,7 +1,4 @@
 from app import create_app
-from app.extensions import mail
-
-mail.init_app(app)
 
 app = create_app()
 
