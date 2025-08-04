@@ -87,15 +87,12 @@ def api_consigners():
 def add_consigner():
     data = request.get_json()
 
-    # Check for existing email
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'success': False, 'message': 'Email already exists'}), 400
 
-    # Check for existing code
     if User.query.filter_by(code=data['code']).first():
         return jsonify({'success': False, 'message': 'Code already exists'}), 400
 
-    # Create new user
     new_user = User(
         name=data['name'],
         code=data['code'],
@@ -112,6 +109,50 @@ def add_consigner():
     )
     db.session.add(new_user)
     db.session.commit()
+
+    # Render the HTML welcome email
+    welcome_html = render_template(
+        'welcome_email.html',
+        name=new_user.name,
+        email=new_user.email,
+        temp_password=data['password_hash']
+    )
+
+    # Plain text version
+    welcome_text = f"""
+    Hi {new_user.name},
+
+    Welcome to Skyman Avionics! We're excited to have you onboard as a consigner.
+
+    Your account has been created with the email: {new_user.email}
+    Your account currently has a temporary password which must be changed.
+
+    To reset your password, click the link below:
+    https://skymanavionicsparts.com/forgot-password
+    Enter your account email to be sent a link to reset your password.
+    
+    Once completed, you can log in with your account email and new password.
+
+    If you have any questions, feel free to reach out.
+
+    Best regards,
+    Skyman Avionics Team
+    """
+
+    # Construct Flask-Mail message
+    msg = Message(
+        subject="Welcome to Skyman Avionics!",
+        #sender="Skyman Avionics <noreply@mg.skymanavionicsparts.com>",
+        recipients=[new_user.email]
+    )
+    msg.body = welcome_text
+    msg.html = welcome_html
+
+    # Send the email
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print(f"Failed to send welcome email: {e}")
 
     return jsonify({'success': True, 'message': 'Consigner added successfully'}), 201
 
@@ -259,29 +300,6 @@ def update_part_field(part_id):
             if notes is not None:
                 part.notes = notes
 
-            if value == 'Sold':
-                # Existing date_sold, shipping, notes logic...
-
-                # Send email to Seth
-                user = User.query.get(part.user_id)
-                if user:
-                    msg = Message(
-                        subject=f"Part Sold — {user.code}",
-                        recipients=["kelsey@skymanavionics.com"]
-                    )
-                    msg.body = (
-                        f"A part has been marked as sold!\n\n"
-                        f"Consigner: {user.name}\n"
-                        f"Code: {user.code}\n"
-                        f"Part Number: {part.part_number}\n"
-                        f"Serial Number: {part.serial_number}\n"
-                        f"Description: {part.description}\n"
-                        f"Condition: {part.condition}\n"
-                        f"Price: ${part.price:.2f}"
-                    )
-                    mail.send(msg)
-
-
         elif value == 'Unsold':
             part.date_sold = None
             part.shipping = None
@@ -295,7 +313,7 @@ def update_part_field(part_id):
             if user:
                 msg = Message(
                     subject=f"Part Sold — {user.code}",
-                    recipients=["Seth071503@gmail.com"]
+                    recipients=["kelsey@skymanavionics.com"]
                 )
                 msg.body = (
                     f"A part has been marked as sold.\n\n"
