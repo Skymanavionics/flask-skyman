@@ -82,7 +82,17 @@
         {% if consigner.address_line2 %}
         <p>{{ consigner.address_line2 }}</p>
         {% endif %}
-        <p>{{ consigner.city }}, {{ consigner.state }} {{ consigner.zip_code }}</p>
+        <p>
+          {%- if consigner.city and consigner.state -%}
+            {{ consigner.city }}, {{ consigner.state }} {{ consigner.zip_code }}
+          {%- elif consigner.city -%}
+            {{ consigner.city }} {{ consigner.zip_code }}
+          {%- elif consigner.state -%}
+            {{ consigner.state }} {{ consigner.zip_code }}
+          {%- elif consigner.zip_code -%}
+            {{ consigner.zip_code }}
+          {%- endif -%}
+        </p>
   </div>
 
   <div class="section">
