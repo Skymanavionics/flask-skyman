@@ -14,6 +14,7 @@ from app.extensions import mail
 from flask_mail import Message
 from weasyprint import HTML
 import os
+from flask import current_app
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -540,7 +541,7 @@ def generate_invoice():
 
     grand_total = subtotal - shipping_fee - misc_fee
 
-    logo_path = os.path.join(app.root_path, 'static', 'logo.png')
+    logo_path = os.path.join(current_app.root_path, 'static', 'logo.png')
 
     rendered_html = render_template(
         'invoice_template.html',
