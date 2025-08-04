@@ -6,12 +6,13 @@ from sqlalchemy import func
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 from app import db
-import pdfkit
+# import pdfkit
 from flask import send_file
 from jinja2 import Template
 from io import BytesIO
 from app.extensions import mail
 from flask_mail import Message
+from weasyprint import HTML
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -552,9 +553,7 @@ def generate_invoice():
     )
 
     # Generate PDF
-    config = pdfkit.configuration(
-        wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
-    pdf = pdfkit.from_string(rendered_html, False, configuration=config)
+    pdf = HTML(string=rendered_html, base_url=request.base_url).write_pdf()
 
     return send_file(
         BytesIO(pdf),
