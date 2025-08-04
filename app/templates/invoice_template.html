@@ -34,6 +34,12 @@
     th, td {
         padding: 8px 10px;
         text-align: left;
+        vertical-align: top;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+    td.left {
+        max-width: 200px;
     }
     th {
         background-color: #f2f2f2;
@@ -63,7 +69,7 @@
   <div class="header">
     <div style="text-align: right;">
         <div style="flex: 1; text-align: left;">
-            <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo">
+            <img src="file://{{ logo_path }}" alt="Logo">
         </div>
         <h2>SKYMAN AVIONICS, LLC - CONSIGNMENT SALE</h2>
         <p><strong>Date:</strong> {{ invoice_date.strftime('%m/%d/%Y') }}</p>

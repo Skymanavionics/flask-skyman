@@ -13,6 +13,7 @@ from io import BytesIO
 from app.extensions import mail
 from flask_mail import Message
 from weasyprint import HTML
+import os
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -539,6 +540,8 @@ def generate_invoice():
 
     grand_total = subtotal - shipping_fee - misc_fee
 
+    logo_path = os.path.join(app.root_path, 'static', 'logo.png')
+
     rendered_html = render_template(
         'invoice_template.html',
         consigner=consigner,
@@ -549,7 +552,8 @@ def generate_invoice():
         shipping=shipping_fee,
         misc=misc_fee,
         grand_total=grand_total,
-        payment_method=payment_method  # ✅ make sure this was passed too
+        payment_method=payment_method,  # ✅ make sure this was passed too
+        logo_path = logo_path
     )
 
     # Generate PDF
