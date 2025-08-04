@@ -6,7 +6,7 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f6f6f6;
+        background-color: #f8f8f8;
         color: #343231;
         margin: 0;
         padding: 0;
@@ -21,6 +21,20 @@
         border: 1px solid #ddd;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
+
+      .email-header {
+        background-color: #343231;
+        padding: 20px;
+        text-align: center;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+    .email-header h2 {
+      color: #54b9d8;
+      margin: 0;
+      font-size: 22px;
+    }
 
       h2 {
         color: #54b9d8;
@@ -37,7 +51,7 @@
         padding: 12px 20px;
         margin-top: 20px;
         background-color: #e6d926;
-        color: #343231;
+        color: black;
         text-decoration: none;
         font-weight: bold;
         border-radius: 5px;
@@ -54,16 +68,20 @@
         color: #888;
         text-align: center;
       }
+
+
     </style>
   </head>
   <body>
     <div class="email-container">
-      <h2>Welcome to Skyman Avionics</h2>
+      <div class="email-header">
+        <h2>Welcome to Skyman Avionics</h2>
+      </div>
 
       <p>Hi {{ name }},</p>
 
       <p>
-        We’re excited to have you onboard as a consigner at <strong>Skyman Avionics</strong>.
+        We’re excited to have you onboard as a consigner at <strong>Skyman Avionics</strong>!
       </p>
 
       <p>
@@ -72,11 +90,7 @@
       </p>
 
       <p>
-        Your account currently uses a temporary password, which must be changed for security reasons.
-      </p>
-
-      <p>
-        To reset your password, please click the button below and follow the instructions:
+        Your account currently uses a temporary password, which must be changed for security reasons. To reset your password, please click the button below and follow the instructions:
       </p>
 
       <p style="text-align: center;">
