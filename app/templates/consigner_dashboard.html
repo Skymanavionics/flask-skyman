@@ -513,7 +513,7 @@
                     <td>${part.serial_number || ''}</td>
                     <td>${part.description || ''}</td>
                     <td>${part.condition || ''}</td>
-                    <td>${price ? '$' + price.toFixed(2) : ''}</td>
+                    <td>${part.status === 'Sold' && price ? '$' + price.toFixed(2) : ''}</td>
                     <td>${part.date_added || ''}</td>
                     <td>${part.status === 'Sold' ? (part.date_sold || '') : ''}</td>
                     <td>
