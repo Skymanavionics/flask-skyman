@@ -1,0 +1,93 @@
+id,part_number,serial_number,description,notes,condition,price,shipping,date_added,date_sold,status,commission_percentage,fixed_fee,invoice_number,user_id
+5260,805-10890-001,82322,Goodrich NY 164 Antenna,Unit Only,AR,778.21,0,2025-07-29,2025-08-13,Sold,0,311.28,MIL13,39
+5261,013-00235-00,10945,Garmin GA 35 Antenna,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL01,39
+5262,011-03257-40,3RE009326,Garmin Flight Stream 210,Includes Connector,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL02,39
+5263,1394T100-7Z,9810-319,Mid Continent Turn Coordinator,Includes Connector,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL08,39
+5264,050-890-0202,T03580,PS Engineering PMA8000B Audio Panel,Includes Tray & Connectors,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL03,39
+5265,760000-4C-O-T,5239,JPI Instruments EDM 760,Includes Connector & Probes,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL05,39
+5266,805-10800-001,82157,L-3 Skywatch System,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5267,5934PAD-3,402923,UI Altimeter,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL07,39
+5268,7000,281101,UI VSI,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5269,013-00235-00,10919,Garmin GA 35 Antenna,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL06,39
+5270,1394T100-7Z,D08-10526,MId -Continent Turn Coordinator,Includes Connector,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL04,39
+5271,065-0042-15,1865,Bendix King Auto Pilot Computer,Includes Tray & Connectors,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL09,39
+5272,060-0017-00,22465,Bendix King KI 256,Includes Connector - Parts Loose Inside Unit,INOP,0,0,2025-07-29,,Unsold,0,0,,39
+5273,066-3046-07,87597,Bendix King KI 525A,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5274,1U262-010-41,T68272N,Sigma Tek Directional Gyro,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5275,78-8060-5900-8,JSD12804514,Stormscope WX-1000 Display,Includes Connector. Shipping $13.28,AR,0,0,2025-07-29,2025-08-18,Sold,0,0,,39
+5276,066-03064-0005,33987,Bendix King KEA 130A Encoding Altimeter,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5277,DVR 300i-XT,98071,Flight COM Voice Recorder,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5278,8125,169369,UI Airspeed Indicator,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5279,AR-850,15291,Narco AR-850 Altitude Reporter,Includes Connector. Shipping $7.11,AR,0,0,2025-07-29,2025-08-18,Sold,0,0,,39
+5280,8125,169371,Includes Connector,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5281,102-0074-03,98M1231G,RCA Horizon Indicator,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL11,39
+5282,060-0015-00,42949,Bendix King KG 102A,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5283,065-0059-03,29391,Bendix King KS 270A Pitch Servo,Unit Only - Cracked Outer Case,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5284,065-0061-06,48410,Bendix King KS 272A Trim Servo,Includes Connector - Cracked Outer Case,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5285,MP-20,11254,Narco MP-20 Converter,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5286,7000,281115,UI VSI,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5287,011-00134-00,59412443,Garmin GA 56 Antenna,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5288,071-1052-00,55802,Bendix King KMT 112 Azimuth,Unit Only,AR,0,6.02,2025-07-29,2025-08-13,Sold,0,0,,39
+5289,071-1466-00,2162,Bendix King KAA 15 Aural Alerter,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5290,11970,FO1467,PS Engineering In Flight Entertainment System,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5291,010-731-1030,A01039,PS Engineering Sirius Receiver Module,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5292,065-0065-01,23208,Bendix King KAS 297B Altitude/VS Selector,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5293,159250-2,214,Horizion Aerospace Digital Display Monitor,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5294,066-3084-32,24259,Bendix King IN 182A,Includes Tray & Connectors,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5295,78-8051-9160-4,JXP02904220,BFG WX-1000 Stormscope,Includes Tray & Connectors,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5296,065-0060-01,42388,Bendix King LS 271A,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5297,7765-1,276,Horizion Fuel QTY Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5298,159263-3,221,Ultra Elec. Fuel Flow / CYL Head Temp,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5299,157275-1,113,Horizon Vacuum Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5300,159256-3,236,Turbine Inlet Temp Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5301,159251-3,357,Horizon RPM Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5302,159253-3,388,Horizon Manifold Press. Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5303,159256-3,153,Horizon Turbine Inlet Temp Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5304,159251-3,362,Horizon RPM Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5305,159253-3,383,Horizon Manifold Pressure Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5306,159261-3,298,Horizon Oil Temp/Press Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5307,159263-3,228,Horizon Fuel Flow / Cyl Head Temp Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5308,159261-3,382,Horizon Oil Temp/Press Indicator,Includes Mounting Bracket & Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5309,071-1242-01,27820,Bendix King Slaving Accesory,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5310,,201,Flow Scan Fuel Flow,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5311,,201,Flow Scan Fuel Flow,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5312,54760,760-96,Vernitron Manifold Pressure Sensor,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5313,54760,760-95,Vernitron Manifold Pressure Sensor,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5314,54761,112-19,Vernitron Manifold Pressure Sensor,Includes Connector,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5315,,,Oil Temp Probe,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL10,39
+5316,8500,98304,Hobbs Meter,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5317,54761,761-43,Vernitron Manifold Pressure Sensor,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5318,,,Oil Temp Probe,Unit Only,AR,0,0,2025-07-29,2025-07-29,Sold,0,0,MIL10,39
+5319,PS10013-6-7740-41L77,,Piper Fuel Sender,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5320,PS10013-5-7740-404098,1192,Piper Fuel Sender,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5321,PS10013-6-7740-41-4498,1121,Piper Fuel Sender,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5322,PS10013-5-7740-40-H79,,Piper Fuel Sender,Unit Only,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5323,,,JPI 2X EGT 1XCHT,,AR,0,0,2025-07-29,,Unsold,0,0,,39
+5324,013-00235-00,47757,Garmin GA 35 WAAS GPS Antenna,,AR,0,0,2025-07-29,,Sold,0,0,DAV01,17
+5325,013-00049-01,B07-10662,Garmin GI 106A CDI,Unit only.,AR,0,0,2025-07-29,,Sold,0,0,DAV02,17
+5326,011-00401-10,96266563,Garmin GMA 340 Audio Panel,Includes mounting tray. No backplate or connectors. ,AR,0,0,2025-07-29,,Sold,0,0,DAV04,17
+5327,89000007-000001,1014,Bendix King KT 74 Transponder,Includes mounting tray. No backplate or connectors. ,AR,0,0,2025-07-29,,Sold,0,0,DAV03,17
+5328,SSD120-30N,22016,Trans-Cal Encoder,Unit only.,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5329,011-01060-40,97113083,Garmin GNS 430W GPS/NAV/COM - 14/28V,Shipping $25.17,AR,4800,0,2025-07-29,2025-08-13,Sold,0,0,,17
+5330,064-1051-70,39803,Bendix King KY 97A,Includes Tray,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5331,C661080-0101,57781,Cessna VSI,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5332,GEM 602,9431,Insight GEM 602-EGT-CHT,Includes Connector and Probes,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5333,1394T100-7Z,2103-539,Electric Gyro Corp Turn Coordinator - 12-32V,,AR,359.9,0,2025-07-29,2025-08-11,Sold,40,0,DAV05,17
+5334,EA-5174-0106-CES,3512,Cessna Airspeed Indicator 40-200 MPH,Shipped with customer UPS account,AR,125,0,2025-07-29,2025-08-15,Sold,0,0,,17
+5335,23-501-017,37203F,Edo-Aire Attitude Gyro,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5336,200-5C,6675,Cessna Directional Gyro,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5337,C664508-0101,7999,Cessna Clock,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5338,N13938,,Cessna RPM Indicator,Data Tag missing- Used Tail # for SN#,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5339,C622007-0101,745626,Cessna Aeroflash Power Supply C622007-0101,,AR,101.28,0,2025-07-29,2025-08-11,Sold,40,0,DAV06,17
+5340,CI-102,484786,Comant CI-102 Antenna ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5341,C622007-0101,762019,Cessna 12V Power Supply ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5342,150-0015,200904,Aeroflash Anti Collision Light Flasher ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5343,C668001-0105,304ZS10,Cessna Flap Position Indicator,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5344,C622001-0201,,RED NAV Light ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5345,C622001-0201,,Green NAV Light,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5346,C668509-0101,81,Cessna Suction Indicator,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5347,C661071-0101,A5719,Cessna Altimeter,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5348,,N13938,Electric Compas ,NO DATA Tag,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5349,450017,,Emergency Locator Transmitter Antenna ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5350,,,Pilot Side Sun Visor,,AR,0,0,2025-07-29,,Unsold,0,0,,17
+5351,,,Co-Pilot Side Sun Visor ,,AR,0,0,2025-07-29,,Unsold,0,0,,17
