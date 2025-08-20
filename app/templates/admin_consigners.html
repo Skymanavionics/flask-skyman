@@ -506,65 +506,72 @@
     let currentConsignerPage = 1;
 
     function applyConsignerFilters() {
-        const name = document.getElementById('nameFilter').value;
-        const code = document.getElementById('codeFilter').value;
-        const date = document.getElementById('dateFilter').value;
+      const name = document.getElementById('nameFilter').value.trim();
+      const code = document.getElementById('codeFilter').value.trim();
+      const date = document.getElementById('dateFilter').value.trim();
 
-        let url = '/admin/api/consigners?';
+      let url = '/admin/api/consigners?';
+      if (name) url += `name=${encodeURIComponent(name)}&`;
+      if (code) url += `code=${encodeURIComponent(code)}&`;
+      if (date) url += `date=${encodeURIComponent(date)}&`;
 
-        if (name) url += `name=${encodeURIComponent(name)}&`;
-        if (code) url += `code=${encodeURIComponent(code)}&`;
-        if (date) url += `date=${encodeURIComponent(date)}&`;
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('consignerList');
+          list.innerHTML = '';
 
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById('consignerList');
-                list.innerHTML = '';
+          if (!Array.isArray(data) || data.length === 0) {
+            list.innerHTML = '<div style="padding: 15px;">No consigners found.</div>';
+            return;
+          }
 
-                if (data.length === 0) {
-                    list.innerHTML = '<div style="padding: 15px;">No consigners found.</div>';
-                    return;
-                }
+          // Alphabetical order ONLY when no filters are applied
+          const noFilters = !name && !code && !date;
+          if (noFilters) {
+            data.sort((a, b) =>
+              String(a.name).localeCompare(String(b.name), undefined, { sensitivity: 'base' })
+            );
+          }
 
-                data.forEach(consigner => {
-                    const div = document.createElement('div');
-                    div.style.padding = '10px 15px';
-                    div.style.borderBottom = '1px solid #ddd';
-                    div.style.cursor = 'pointer';
-                    div.setAttribute('data-id', consigner.id);
-                    div.onclick = () => fetchConsignerParts(consigner.id);
+          data.forEach(consigner => {
+            const div = document.createElement('div');
+            div.style.padding = '10px 15px';
+            div.style.borderBottom = '1px solid #ddd';
+            div.style.cursor = 'pointer';
+            div.dataset.id = consigner.id;
 
-                    // Attach row click (unsold parts)
-                    div.onclick = () => fetchConsignerParts(consigner.id);
+            // Row click = load unsold parts
+            div.onclick = () => fetchConsignerParts(consigner.id);
 
-                    div.innerHTML = `
-                      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                        <div style="flex: 1; min-width: 0;">
-                          <strong title="${consigner.name}">
-                            <span class="sidebar-name">${consigner.name}</span>
-                          </strong><br>
-                          Code: ${consigner.code}<br>
-                          Date: ${consigner.created_at}
-                        </div>
-                        <img src="/static/invoice.png"
-                             alt="View Sold Parts"
-                             class="view-sold-icon"
-                             style="width: 20px; height: 25px; cursor: pointer;"
-                             title="View Sold Parts">
-                      </div>
-                    `;
-                    list.appendChild(div);
+            div.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                <div style="flex: 1; min-width: 0;">
+                  <strong title="${consigner.name}">
+                    <span class="sidebar-name">${consigner.name}</span>
+                  </strong><br>
+                  Code: ${consigner.code}<br>
+                  Date: ${consigner.created_at}
+                </div>
+                <img
+                  src="/static/invoice.png"
+                  alt="View Sold Parts"
+                  class="view-sold-icon"
+                  style="width: 20px; height: 25px; cursor: pointer;"
+                  title="View Sold Parts"
+                >
+              </div>
+            `;
+            list.appendChild(div);
 
-                    // Prevent row click when clicking the "View Sold" button
-                    const icon = div.querySelector('.view-sold-icon');
-                    icon.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent triggering the row's click event
-                        fetchSoldParts(consigner.id); // You'll define this function
-                    });
-                });
-
+            // "View Sold" icon should NOT trigger the row click
+            const icon = div.querySelector('.view-sold-icon');
+            icon.addEventListener('click', (e) => {
+              e.stopPropagation();
+              fetchSoldParts(consigner.id);
             });
+          });
+        });
     }
 
 
@@ -838,13 +845,24 @@
                 <td class="editable ellipsis-cell" data-id="${part.id}" data-field="serial_number">${part.serial_number}</td>
                 <td class="editable ellipsis-cell" data-id="${part.id}" data-field="description">${part.description}</td>
                 <td class="editable" data-id="${part.id}" data-field="condition">${part.condition}</td>
-                <td class="editable" data-id="${part.id}" data-field="${part.fixed_fee != null ? 'fixed_fee' : 'commission_percentage'}">
-                    ${
-                        part.fixed_fee != null
-                            ? `$${part.fixed_fee.toFixed(2)}`
-                            : (part.commission_percentage != null ? `${part.commission_percentage.toFixed(2)}%` : '—')
-                    }
+                <td class="editable" data-id="${part.id}"
+                    data-field="${
+                        (part.fixed_fee && part.fixed_fee !== 0)
+                            ? 'fixed_fee'
+                            : 'commission_percentage'
+                    }">
+                  ${
+                    // Case 1: both are zero or null → default to 0%
+                    ((!part.fixed_fee || part.fixed_fee === 0) && (!part.commission_percentage || part.commission_percentage === 0))
+                      ? '0.00%'
+                      // Case 2: fixed fee present and non-zero → show as $
+                      : (part.fixed_fee && part.fixed_fee !== 0)
+                          ? `$${part.fixed_fee.toFixed(2)}`
+                          // Case 3: else show commission %
+                          : `${(part.commission_percentage || 0).toFixed(2)}%`
+                  }
                 </td>
+
                 <td class="editable ellipsis-cell" data-id="${part.id}" data-field="price">${part.price != null ? '$' + part.price.toFixed(2) : ''}</td>
 
                 ${isSoldMode ? `
