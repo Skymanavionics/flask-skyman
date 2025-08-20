@@ -262,6 +262,12 @@ def update_part_field(part_id):
             if not (0 <= casted_value <= 100):
                 return jsonify({"message": "Commission must be between 0 and 100."}), 400
 
+        # Keep fixed_fee and commission_percentage mutually exclusive
+        if field == 'commission_percentage':
+            part.fixed_fee = None
+        elif field == 'fixed_fee':
+            part.commission_percentage = None
+
         if field == 'date_added':
             try:
                 casted_value = datetime.strptime(value, '%Y-%m-%d').date()

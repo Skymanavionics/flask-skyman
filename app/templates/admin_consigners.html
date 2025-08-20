@@ -1158,130 +1158,185 @@
     }
 
     function enableInlineEditing() {
-        document.querySelectorAll('#consignerPartsTable td').forEach(cell => {
-            cell.ondblclick = function () {
-                const partId = this.dataset.id;
-                const field = this.dataset.field;
+      document.querySelectorAll('#consignerPartsTable td').forEach(cell => {
+        cell.ondblclick = function () {
+          const partId = this.dataset.id;
+          const field = this.dataset.field;
+          if (!partId || !field) return;
 
-                if (!partId || !field) return;
+          const originalValue = this.textContent.trim();
 
-                const originalValue = this.textContent.trim();
+          // CONDITION: dropdown
+          if (field === "condition") {
+            const select = document.createElement('select');
+            ["AR", "SV", "YT", "NA", "NEW", "INOP", "NOS", "8130-3"].forEach(optionVal => {
+              const option = document.createElement('option');
+              option.value = option.text = optionVal;
+              if (optionVal === originalValue) option.selected = true;
+              select.appendChild(option);
+            });
 
-                // Special case for condition dropdown
-                if (field === "condition") {
-                    const select = document.createElement('select');
-                    ["AR", "SV", "YT", "NA", "NEW", "INOP", "NOS", "8130-3"].forEach(optionVal => {
-                        const option = document.createElement('option');
-                        option.value = option.text = optionVal;
-                        if (optionVal === originalValue) option.selected = true;
-                        select.appendChild(option);
-                    });
+            this.textContent = '';
+            this.appendChild(select);
+            select.focus();
 
-                    this.textContent = '';
-                    this.appendChild(select);
-                    select.focus();
-
-                    // Save on change
-                    select.addEventListener('change', () => {
-                        const newValue = select.value;
-                        updatePartField(partId, field, newValue, () => {
-                            this.textContent = newValue;
-                        });
-                    });
-
-                    // Save on blur
-                    select.addEventListener('blur', () => {
-                        const newValue = select.value;
-                        updatePartField(partId, field, newValue, () => {
-                            this.textContent = newValue;
-                        });
-                    });
-
-                    // Optional: Pressing Enter triggers save
-                    select.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            select.blur(); // Triggers blur → save
-                        }
-                    });
-                } else {
-                    // Fallback for other fields (input box)
-                    const input = document.createElement('input');
-                    input.value = originalValue;
-                    input.style.width = "100%";
-                    this.textContent = '';
-                    this.appendChild(input);
-                    input.focus();
-
-                    input.onblur = () => {
-                        let newValue = input.value.trim();
-
-                        // Clean $ if editing price
-                        if (field === 'price' && newValue.startsWith('$')) {
-                            newValue = newValue.replace('$', '');
-                        }
-
-                        // Clean $ if editing shipping
-                        if (field === 'shipping' && newValue.startsWith('$')) {
-                            newValue = newValue.replace('$', '');
-                        }
-
-                        // Validation for commission_percentage
-                        if (field === 'commission_percentage') {
-                            newValue = newValue.replace('%', '').trim();  // remove % if present
-                            const val = parseFloat(newValue);
-                            if (isNaN(val) || val < 0 || val > 100) {
-                                alert("Commission % must be between 0 and 100.");
-                                this.textContent = originalValue;
-                                return;
-                            }
-                            newValue = val.toFixed(2);  // format it back to 2 decimal places
-                        }
-
-                        if (field === 'fixed_fee') {
-                            const val = parseFloat(newValue.replace('$', ''));
-                            if (isNaN(val) || val < 0) {
-                                alert("Fixed fee must be a positive number.");
-                                this.textContent = originalValue;
-                                return;
-                            }
-                            newValue = val.toFixed(2);
-                        }
-
-                        if (field === 'date_added' || field === 'date_sold') {
-                            const input = document.createElement('input');
-                            input.type = 'date';
-                            input.value = originalValue;
-                            this.textContent = '';
-                            this.appendChild(input);
-                            input.focus();
-
-                            input.onblur = () => {
-                                const newValue = input.value;
-                                if (!newValue) {
-                                    alert("Date cannot be empty.");
-                                    this.textContent = originalValue;
-                                    return;
-                                }
-
-                                updatePartField(partId, field, newValue, () => {
-                                    this.textContent = newValue;
-                                });
-                            };
-                            return; // Prevent falling through to default input
-                        }
-                        updatePartField(partId, field, newValue, () => {
-                            if (['price', 'shipping', 'fixed_fee'].includes(field)) {
-                                this.textContent = `$${parseFloat(newValue).toFixed(2)}`;
-                            } else if (field === 'commission_percentage') {
-                                this.textContent = `${parseFloat(newValue).toFixed(2)}%`;
-                            } else {
-                                this.textContent = newValue;
-                            }
-                        });
-                    };
-                }
+            const saveCondition = () => {
+              const newValue = select.value;
+              updatePartField(partId, field, newValue, () => {
+                this.textContent = newValue;
+              });
             };
-        });
+            select.addEventListener('change', saveCondition);
+            select.addEventListener('blur', saveCondition);
+            select.addEventListener('keydown', (e) => { if (e.key === 'Enter') select.blur(); });
+            return;
+          }
+
+          // DATES: use date input
+          if (field === 'date_added' || field === 'date_sold') {
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            // If originalValue looks like YYYY-MM-DD, reuse it
+            if (/^\d{4}-\d{2}-\d{2}$/.test(originalValue)) {
+              dateInput.value = originalValue;
+            }
+            this.textContent = '';
+            this.appendChild(dateInput);
+            dateInput.focus();
+
+            const saveDate = () => {
+              const newValue = dateInput.value;
+              if (!newValue) {
+                alert("Date cannot be empty.");
+                this.textContent = originalValue;
+                return;
+              }
+              updatePartField(partId, field, newValue, () => {
+                this.textContent = newValue;
+              });
+            };
+            dateInput.addEventListener('blur', saveDate);
+            dateInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') dateInput.blur(); });
+            return;
+          }
+
+          // Default: text input
+          const input = document.createElement('input');
+          input.value = originalValue;
+          input.style.width = "100%";
+          this.textContent = '';
+          this.appendChild(input);
+          input.focus();
+
+          const saveValue = () => {
+            let newValue = input.value.trim();
+
+            // PRICE: strip leading $, keep numeric
+            if (field === 'price') {
+              if (newValue.startsWith('$')) newValue = newValue.replace('$', '').trim();
+              const val = parseFloat(newValue);
+              if (isNaN(val) || val < 0) {
+                alert('Price must be a non-negative number (e.g., "$12.34" or "12.34").');
+                this.textContent = originalValue;
+                return;
+              }
+              updatePartField(partId, field, val, () => {
+                this.textContent = `$${val.toFixed(2)}`;
+              });
+              return;
+            }
+
+            // SHIPPING: strip leading $, keep numeric
+            if (field === 'shipping') {
+              if (newValue.startsWith('$')) newValue = newValue.replace('$', '').trim();
+              const val = parseFloat(newValue);
+              if (isNaN(val) || val < 0) {
+                alert('Shipping must be a non-negative number (e.g., "$12.34" or "12.34").');
+                this.textContent = originalValue;
+                return;
+              }
+              updatePartField(partId, field, val, () => {
+                this.textContent = `$${val.toFixed(2)}`;
+              });
+              return;
+            }
+
+            // COMMISSION / FIXED FEE ENFORCEMENT:
+            // - "$" required for fixed fee
+            // - "%" required for percent
+            // - blank => 0%
+            if (field === 'commission_percentage' || field === 'fixed_fee') {
+              const originalField = field;
+              let fieldToSend = originalField;
+              let numericValue = null;
+              let displayText = '';
+              let valid = true;
+
+              if (newValue === '') {
+                // Blank → 0%
+                fieldToSend = 'commission_percentage';
+                numericValue = 0.0;
+                displayText = '0.00%';
+              } else if (newValue.startsWith('$')) {
+                // Fixed fee requires leading $
+                const stripped = newValue.slice(1).trim();
+                const val = parseFloat(stripped);
+                if (isNaN(val) || val < 0) {
+                  valid = false;
+                } else {
+                  fieldToSend = 'fixed_fee';
+                  numericValue = parseFloat(val.toFixed(2));
+                  displayText = `$${numericValue.toFixed(2)}`;
+                }
+              } else if (newValue.endsWith('%')) {
+                // Percentage requires trailing %
+                const stripped = newValue.slice(0, -1).trim();
+                const val = parseFloat(stripped);
+                if (isNaN(val) || val < 0 || val > 100) {
+                  valid = false;
+                } else {
+                  fieldToSend = 'commission_percentage';
+                  numericValue = parseFloat(val.toFixed(2));
+                  displayText = `${numericValue.toFixed(2)}%`;
+                }
+              } else {
+                valid = false;
+              }
+
+              if (!valid) {
+                alert('Enter a fixed fee like "$12.34" or a percent like "12.34%". Blank = 0%.');
+                this.textContent = originalValue;
+                return;
+              }
+
+              // Send clean numeric value; backend will clear the opposite field
+              updatePartField(partId, fieldToSend, numericValue, () => {
+                this.textContent = displayText;
+                // switch the cell's "type" if user changed it
+                this.dataset.field = fieldToSend;
+              });
+              return;
+            }
+
+            // Other simple text/number fields
+            updatePartField(partId, field, newValue, () => {
+              if (['fixed_fee'].includes(field)) {
+                this.textContent = `$${parseFloat(newValue).toFixed(2)}`;
+              } else if (field === 'commission_percentage') {
+                this.textContent = `${parseFloat(newValue).toFixed(2)}%`;
+              } else if (field === 'price' || field === 'shipping') {
+                // (kept for completeness if called via some other path)
+                this.textContent = `$${parseFloat(newValue).toFixed(2)}`;
+              } else {
+                this.textContent = newValue;
+              }
+            });
+          };
+
+          input.addEventListener('blur', saveValue);
+          input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
+        };
+      });
     }
 
     function enableConsignerInlineEditing() {
