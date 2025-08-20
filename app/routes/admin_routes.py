@@ -242,6 +242,7 @@ def update_part_field(part_id):
         'date_added': str,  # assuming YYYY-MM-DD
         'date_sold': str,
         'notes': str,
+        'invoice_number': str,
         'status': str
     }
 

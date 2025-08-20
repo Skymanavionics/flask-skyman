@@ -346,6 +346,7 @@
                             <th>Price</th>
                             <th id="shippingHeader" style="display: none;">Shipping</th>
                             <th id="dateHeader">Date Added</th>
+                            <th id="invoiceHeader" style="display: none;">Invoice</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -825,6 +826,7 @@
         tableBody.innerHTML = '';
 
         document.getElementById('shippingHeader').style.display = isSoldMode ? '' : 'none';
+        document.getElementById('invoiceHeader').style.display = isSoldMode ? '' : 'none';
 
         const start = (page - 1) * PARTS_PER_PAGE;
         const pageParts = filteredParts.slice(start, start + PARTS_PER_PAGE);
@@ -854,6 +856,10 @@
                 ${isSoldMode
                     ? `<td class="editable" data-id="${part.id}" data-field="date_sold">${part.date_sold || '—'}</td>`
                     : `<td class="editable" data-id="${part.id}" data-field="date_added">${part.date_added}</td>`
+                }
+
+                ${isSoldMode
+                    <td class="editable ellipsis-cell" data-id="${part.id}" data-field="invoice_number">${part.invoice_number}</td>
                 }
 
                 <td>
