@@ -858,9 +858,13 @@
                     : `<td class="editable" data-id="${part.id}" data-field="date_added">${part.date_added}</td>`
                 }
 
-                ${isSoldMode
-                    <td class="editable ellipsis-cell" data-id="${part.id}" data-field="invoice_number">${part.invoice_number}</td>
-                }
+                ${isSoldMode ? `
+                    <td class="editable ellipsis-cell"
+                        data-id="${part.id}"
+                        data-field="invoice_number">
+                        ${part.invoice_number ?? '—'}
+                    </td>
+                ` : ``}
 
                 <td>
                     ${isSoldMode ? `
